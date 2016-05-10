@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="#e7e6e4"
+    android:clipToPadding="true">
+    <wang.chillax.betterplay.cusview.ToolBar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <wang.chillax.betterplay.cusview.GroupListView
+        android:id="@+id/glv"
+        android:layout_below="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/glv"
+        android:layout_margin="20dp"
+        android:text="注：收款方为大连利未校园团队,如您对此订单有疑问,请联系我们.QQ:805377860  Tel:18840833200"/>
+</RelativeLayout>

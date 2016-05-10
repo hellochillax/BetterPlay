@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">利未校园</string>
+    <string name="feed_hint">请留下您宝贵的意见!</string>
+    <string name="submit_feed">提交</string>
+    <string name="common_issue">常见疑问</string>
+    <string name="btn_get_verify_code">获取验证码</string>
+    <string name="btn_reset_pwd">确定</string>
+    <string name="title_verify_code">验证码</string>
+    <string name="phonenum">请输入手机号</string>
+    <string name="sending_code">正在发送...</string>
+</resources>

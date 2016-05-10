@@ -1,0 +1,31 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+    <style name="toolbar_title_theme">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    <style name="bottom_menu_item_text_style">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/bottom_menu_text_color</item>
+        <item name="android:layout_marginTop">5dp</item>
+    </style>
+    <style name="base_aty_loading_dialog_style" parent="android:Theme.Holo.Dialog">
+        <item name="android:windowBackground">@drawable/base_aty_loading_dialog_bg</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    <style name="transparentFrameWindowStyle" parent="android:style/Theme.Dialog">
+        <item name="android:windowBackground">@drawable/photo_choose_bg</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+    <style name="main_menu_animstyle">
+        <item name="android:windowEnterAnimation">@anim/photo_dialog_in_anim</item>
+        <item name="android:windowExitAnimation">@anim/photo_dialog_out_anim</item>
+    </style>
+</resources>

@@ -1,0 +1,68 @@
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.3'
+
+    defaultConfig {
+        applicationId "wang.chillax.betterplay"
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        // Enabling multidex support.
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            debuggable true
+            minifyEnabled true  //turn on code shrinking
+            shrinkResources true    //turn on resource shrinking
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+        // Define separate dev and prod product flavors.
+        devDebug {//development and debug
+            // dev utilizes minSDKVersion = 21 to allow the Android gradle plugin
+            // to pre-dex each module and produce an APK that can be tested on
+            // Android Lollipop without time consuming dex merging processes.
+            minSdkVersion 21
+        }
+        prod {//production
+            // The actual minSdkVersion for the application.
+            minSdkVersion 14
+        }
+    }
+    //Butter Knife 混淆时需要添加的
+    lintOptions {
+        disable 'InvalidPackage'
+        quiet true
+        abortOnError false
+        ignoreWarnings true
+    }
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.jakewharton:butterknife:7.0.1'
+    compile 'com.readystatesoftware.systembartint:systembartint:1.0.4'
+    compile 'de.hdodenhof:circleimageview:2.0.0'
+    compile 'com.wang.avi:library:1.0.1'
+    compile 'com.nineoldandroids:library:2.4.0'
+    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
+    compile 'com.google.code.gson:gson:2.5'
+    compile 'junit:junit:4.12'
+    compile 'in.srain.cube:ultra-ptr:1.0.11'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    compile 'com.android.support:multidex:1.0.0'
+    compile project(':u_lib')
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:support-v4:23.2.1'
+    compile 'com.android.support:recyclerview-v7:23.2.1'
+}

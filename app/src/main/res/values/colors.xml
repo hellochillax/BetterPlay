@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#4fd059</color>
+    <color name="colorPrimaryDark">#4fd059</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="actionbar_title_color">#ffffff</color>
+    <color name="bottom_menu_text_color">#fff</color>
+    <color name="white">#ffffff</color>
+    <color name="bottom_menu_text_highlighted_color">#4bc054</color>
+    <color name="bottom_menu_bg_color">#000</color>
+    <color name="sign_out">#D32F2F</color>
+    <color name="bg_setting">#E0E0E0</color>
+    <color name="submit_btn">#CDDC39</color>
+    <color name="submit_press">#00BCD4</color>
+
+
+    <color name="home_page_lv_ultimate_color">#ff0000</color>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:clipToPadding="true"
+    android:fitsSystemWindows="true"
+    android:background="@color/bg_setting">
+
+    <wang.chillax.betterplay.cusview.ToolBar
+        android:id="@+id/set_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"/>
+
+   <wang.chillax.betterplay.cusview.GroupListView
+       android:id="@+id/setting_list"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_marginBottom="32dp">
+   </wang.chillax.betterplay.cusview.GroupListView>
+
+</LinearLayout>
