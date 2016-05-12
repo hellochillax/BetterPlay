@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -29,6 +30,7 @@ public class UserInfo extends BaseActivity implements ToolBar.ToolBarListener{
     MyAdapter mAdapter;
     String [] titles=new String[]{"昵称","性别","电话","学校","学号"};
     String [] details=new String[titles.length];
+    ViewHolder [] holders = new ViewHolder[titles.length];
 
     @Override
     protected void initDatas() {
@@ -109,12 +111,25 @@ public class UserInfo extends BaseActivity implements ToolBar.ToolBarListener{
 
     @Override
     public void onTitleRightClicked() {
-
+        /**
+         * 在此处实现
+         * 1 将EditText里的文本转换到user里
+         * 2 上传更新*/
+        User user = BmobUser.getCurrentUser(this,User.class);
+        if(user!=null){
+            user.setNickname(((EditText)holders[0].getConvertView().findViewById(R.id.detail)).getText().toString());
+            user.setSex(((EditText)holders[1].getConvertView().findViewById(R.id.detail)).getText().toString());
+            user.setPhone(((EditText)holders[2].getConvertView().findViewById(R.id.detail)).getText().toString());
+            user.setSchool(((EditText)holders[3].getConvertView().findViewById(R.id.detail)).getText().toString());
+            user.setStunum(((EditText)holders[4].getConvertView().findViewById(R.id.detail)).getText().toString());
+        }
+        user.update(this);
     }
 
     @Override
     public void onInit(ImageView back, TextView titleLeft, TextView titleCenter, TextView titleRight, ImageView more) {
         titleCenter.setText("个人中心");
+        titleRight.setText("保存");
     }
     private class MyAdapter extends BaseAdapter{
 
@@ -126,6 +141,7 @@ public class UserInfo extends BaseActivity implements ToolBar.ToolBarListener{
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder holder=ViewHolder.get(UserInfo.this,convertView,R.layout.userinfo_list_item,position,parent);
+            holders[position] = holder;
             holder.setText(R.id.title,titles[position]).setText(R.id.detail, TextUtils.isEmpty(details[position])?"点击设置":details[position]);
             return holder.getConvertView();
         }

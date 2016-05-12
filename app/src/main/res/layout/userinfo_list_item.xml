@@ -12,12 +12,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"/>
-    <TextView
+    <EditText
         android:id="@+id/detail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
-    <ImageView
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:src="@mipmap/self_list_arrow"/>
 </LinearLayout>
