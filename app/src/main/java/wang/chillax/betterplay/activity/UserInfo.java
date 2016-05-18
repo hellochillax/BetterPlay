@@ -4,7 +4,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 
 import butterknife.Bind;
 import cn.bmob.v3.BmobUser;
+import cn.bmob.v3.listener.UpdateListener;
 import wang.chillax.betterplay.R;
 import wang.chillax.betterplay.adapter.BaseAdapter;
 import wang.chillax.betterplay.adapter.ViewHolder;
@@ -31,6 +31,7 @@ public class UserInfo extends BaseActivity implements ToolBar.ToolBarListener{
     String [] titles=new String[]{"昵称","性别","电话","学校","学号"};
     String [] details=new String[titles.length];
     ViewHolder [] holders = new ViewHolder[titles.length];
+    boolean isMessageChanged = false;
 
     @Override
     protected void initDatas() {
@@ -65,12 +66,12 @@ public class UserInfo extends BaseActivity implements ToolBar.ToolBarListener{
         mAdapter=new MyAdapter();
         addFooterView();
         mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                showToast(position+"");
-            }
-        });
+//        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                showToast(position+"");
+//            }
+//        });
     }
 
 
@@ -123,7 +124,17 @@ public class UserInfo extends BaseActivity implements ToolBar.ToolBarListener{
             user.setSchool(((EditText)holders[3].getConvertView().findViewById(R.id.detail)).getText().toString());
             user.setStunum(((EditText)holders[4].getConvertView().findViewById(R.id.detail)).getText().toString());
         }
-        user.update(this);
+        user.update(this, new UpdateListener() {
+            @Override
+            public void onSuccess() {
+                showToast("修改成功");
+            }
+
+            @Override
+            public void onFailure(int i, String s) {
+                showToast("修改失败，请稍后重试");
+            }
+        });
     }
 
     @Override
@@ -145,7 +156,13 @@ public class UserInfo extends BaseActivity implements ToolBar.ToolBarListener{
             holder.setText(R.id.title,titles[position]).setText(R.id.detail, TextUtils.isEmpty(details[position])?"点击设置":details[position]);
             return holder.getConvertView();
         }
+
+//        @Override
+//        public void notifyDataSetChanged() {
+////            super.notifyDataSetChanged();
+//        }
     }
+
     void addFooterView(){
         View footerView=LayoutInflater.from(this).inflate(R.layout.userinfo_list_footer,null);
         mListView.addFooterView(footerView);

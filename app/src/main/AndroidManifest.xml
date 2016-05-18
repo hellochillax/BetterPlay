@@ -60,7 +60,7 @@
             android:configChanges="orientation|keyboardHidden"
             android:windowSoftInputMode="stateHidden|adjustResize"/>
         <activity android:name=".activity.LoginActivity"/>
-        <activity android:name=".activity.UserInfo"/>
+        <activity android:name=".activity.UserInfo" android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".activity.SettingActivity" />
         <activity android:name=".activity.SignInActivity"/>
         <activity android:name=".activity.FeedActivity" />

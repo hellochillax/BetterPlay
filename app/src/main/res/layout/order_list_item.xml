@@ -1,10 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <TextView
-        android:id="@+id/title"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+    android:background="#ffffff">
+    <LinearLayout
+        android:layout_margin="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/system_main_text_size"/>
+        android:orientation="horizontal">
+        <TextView
+            android:text="订单已完成"
+            android:textSize="16sp"
+            android:textColor="@color/umeng_comm_feed_detail_blue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text=" -1小时14分钟前"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/orderImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@mipmap/ic_launcher"/>
+        <TextView
+            android:id="@+id/orderName"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="5dp"
+            android:text="中秋骑行野餐"
+            android:textStyle="bold"
+            android:textColor="@color/umeng_comm_black_color"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/orderImage"/>
+
+        <View
+            android:id="@+id/line"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="5dp"
+            android:layout_toEndOf="@+id/orderImage"
+            android:layout_below="@+id/orderName"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#66ccff"/>
+        <TextView
+            android:id="@+id/orderDate"
+            android:layout_marginLeft="10dp"
+            android:textSize="16sp"
+            android:layout_toEndOf="@+id/orderImage"
+            android:layout_below="@+id/line"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2015.09.27"/>
+        <TextView
+            android:id="@+id/orderNumber"
+            android:gravity="right"
+            android:layout_marginRight="5dp"
+            android:textSize="16sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/orderDate"
+            android:layout_below="@+id/line"
+            android:text="*1"/>
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp">
+        <TextView
+            android:gravity="right"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="实付 ￥"
+            android:layout_weight="1"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="90.0"
+            android:textStyle="bold"
+            android:textSize="18sp"/>
+    </LinearLayout>
 </LinearLayout>
