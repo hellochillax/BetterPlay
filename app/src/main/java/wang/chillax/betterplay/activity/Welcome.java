@@ -9,13 +9,17 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
+import android.support.multidex.MultiDex;
 import android.telecom.PhoneAccountHandle;
+import android.view.View;
 
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.umeng.comm.core.impl.CommunityFactory;
+import com.umeng.comm.ui.fragments.CommunityMainFragment;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,7 +38,7 @@ public class Welcome extends Activity {
     /**
      * 欢迎界面停留的时间间隔
      */
-    private final int DURATION=2000;
+//    private final int DURATION=2000;
 
     private Handler mHandler=new Handler(){
         @Override
@@ -52,11 +56,23 @@ public class Welcome extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
-        long pre=System.currentTimeMillis();
+        MultiDex.install(getApplicationContext());
         installCrashHandler();
         initDirs();
         initImageLoader();
-        mHandler.sendEmptyMessageDelayed(0,Math.max(1000,DURATION-System.currentTimeMillis()+pre));
+        initUmengFragment();
+        mHandler.sendEmptyMessage(0);
+    }
+
+    private void initUmengFragment() {
+        try{
+            CommunityFactory.getCommSDK(getApplicationContext());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        App.mFeedsFragment = new CommunityMainFragment();
+        //设置Feed流页面的返回按钮不可见
+        App.mFeedsFragment.setBackButtonVisibility(View.INVISIBLE);
     }
 
 

@@ -1,5 +1,6 @@
 package wang.chillax.betterplay.fragment;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -8,6 +9,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,15 +24,21 @@ import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.assist.FailReason;
 
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobRealTimeData;
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.datatype.BmobFile;
 import cn.bmob.v3.listener.UpdateListener;
 import cn.bmob.v3.listener.UploadFileListener;
+import cn.bmob.v3.listener.ValueEventListener;
 import wang.chillax.betterplay.R;
 import wang.chillax.betterplay.activity.HeartAty;
 import wang.chillax.betterplay.activity.LoginActivity;
@@ -47,6 +56,7 @@ import wang.chillax.betterplay.cusview.GLVDefaultItemView2;
 import wang.chillax.betterplay.cusview.GroupListView;
 import wang.chillax.betterplay.utils.CommUtils;
 import wang.chillax.betterplay.utils.ImageLoader;
+import wang.chillax.betterplay.utils.LogUtils;
 import wang.chillax.betterplay.utils.ScreenUtil;
 import wang.chillax.betterplay.utils.UserUtil;
 
@@ -64,6 +74,17 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
     TextView levelView;
 
     Dialog mDialog;//图片选择
+//    BmobRealTimeData mBrtd= new BmobRealTimeData();
+    Handler mHandler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+           switch (msg.what){
+               case CODE_TABLE_UPDATE:
+                   setUserLevel(msg.arg1);
+                   break;
+           }
+        }
+    };
 
     String[][] items = new String[][]{
             {"我的订单", "心愿单", "消息中心"}, {"优惠券", "推荐优惠"}, {"设置"}
@@ -73,6 +94,42 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
             {R.mipmap.self_sale_card, R.mipmap.self_reco_sale},
             {R.mipmap.self_setting}
     };
+
+//    private void levelCheck(){
+//        mBrtd.start(context, new ValueEventListener() {
+//            @Override
+//            public void onDataChange(JSONObject data) {
+//                LogUtils.d(data.toString());
+//                Pattern pattern=Pattern.compile("level\":(\\d*)");
+//                Matcher matcher=pattern.matcher(data.toString());
+//                if(matcher.find()){
+//                    int level = Integer.valueOf(matcher.group(1));
+//                    mHandler.obtainMessage(CODE_TABLE_UPDATE,level,level).sendToTarget();
+//                }
+//            }
+//
+//            @Override
+//            public void onConnectCompleted() {
+//                LogUtils.d("connect is ok...");
+//            }
+//        });
+//        if(mBrtd.isConnected()){
+//            // 监听行更新
+//            mBrtd.subRowUpdate("_User", UserUtil.getCurrentUser(context).getObjectId());
+//        }
+//    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+//        levelCheck();
+    }
+
+//    @Override
+//    public void onStop() {
+//        super.onStop();
+//        if(mBrtd!=null&&UserUtil.getCurrentUser(context)!=null)mBrtd.unsubRowUpdate("_User",UserUtil.getCurrentUser(context).getObjectId());
+//    }
 
     @Override
     public int initLayoutRes() {
@@ -170,13 +227,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
         if (user != null) {
             nameView.setText("昵称:" + (user.getNickname() == null ? user.getUsername() : user.getNickname()));
             int level = user.getLevel();
-            if (level < 100) {
-                levelView.setText("级别: " + user.getLevel() + "(小卒)");
-            } else if (level < 200) {
-                levelView.setText("等级: " + user.getLevel() + "(代理)");
-            } else if (level == 888) {
-                levelView.setText("等级: " + user.getLevel() + "(管理员)");
-            }
+            setUserLevel(level);
             ImageLoader.getInstance().loadImage(user.getHead() == null ? "" : user.getHead().getFileUrl(context), new ImageLoader.ImageLoadListener() {
                 @Override
                 public void onLoadingStarted(String s, View view) {
@@ -209,10 +260,21 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
         }
     }
 
+    private void setUserLevel(int level) {
+        User user=UserUtil.getCurrentUser(context);
+        if (level < 100) {
+            levelView.setText("级别: " + user.getLevel() + "(小卒)");
+        } else if (level < 200) {
+            levelView.setText("等级: " + user.getLevel() + "(代理)");
+        } else if (level == 888) {
+            levelView.setText("等级: " + user.getLevel() + "(管理员)");
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //结果码不等于取消时候
-//        if (resultCode != 0) {
+        if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
                 case SELF_PAGE_REQ_CODE:
                     //登陆或者注册成功
@@ -232,7 +294,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
                     handleIconTask();
                     break;
             }
-//        }
+        }
     }
 
     /**
@@ -293,8 +355,12 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
     }
 
     private void openPayOrdersAty() {
-        startActivity(new Intent(context, PayOrders.class));
-        playOpenAnimation();
+        if(UserUtil.getCurrentUser(context)==null){
+            showToast(getResources().getString(R.string.not_login));
+        }else{
+            startActivity(new Intent(context, PayOrders.class));
+            playOpenAnimation();
+        }
     }
 
     private void openMyHeartAty() {
@@ -317,7 +383,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
             startActivity(new Intent(context, RecoSaleAty.class));
             playOpenAnimation();
         }else{
-            showToast("请先登录");
+            showToast(getResources().getString(R.string.not_login));
         }
     }
 
@@ -415,6 +481,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
     private static final int IMAGE_REQUEST_CODE = 0x03;//选择本地照片
     private static final int CAMERA_REQUEST_CODE = 0x04;//拍照
     private static final int RESULT_REQUEST_CODE = 0x05;//剪切图片
+    private static final int CODE_TABLE_UPDATE=0X06;//检测到用户表更新
 
 
     /**

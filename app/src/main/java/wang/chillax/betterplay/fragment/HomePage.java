@@ -135,9 +135,8 @@ public class HomePage extends BasePage implements PtrHandler {
         mContentGv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               final int pos=position;
                 Intent i=new Intent(context, GroupDetailAty.class);
-                ArrayList<GroupFriend> list=new ArrayList<GroupFriend>();
+                ArrayList<GroupFriend> list=new ArrayList<>();
                 list.add(contentList.get(position-3));
                 i.putParcelableArrayListExtra("action",list);
                 startActivity(i);
@@ -194,7 +193,7 @@ public class HomePage extends BasePage implements PtrHandler {
 
                 @Override
                 public void onError(int i, String s) {
-                    showToast("网络错误,请重试");
+                    showToast(getResources().getString(R.string.error_network));
                     LogUtils.e(s);
                 }
             });
@@ -240,7 +239,7 @@ public class HomePage extends BasePage implements PtrHandler {
 
                 @Override
                 public void onError(int i, String s) {
-                    showToast("网络错误,请重试");
+                    showToast(getResources().getString(R.string.error_network));
                     LogUtils.e(s);
                 }
             });

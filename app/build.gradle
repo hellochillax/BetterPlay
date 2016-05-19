@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "wang.chillax.betterplay"
-        minSdkVersion 14
+        minSdkVersion 11
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -32,7 +32,7 @@ android {
         }
         prod {//production
             // The actual minSdkVersion for the application.
-            minSdkVersion 14
+            minSdkVersion 11
         }
     }
     //Butter Knife 混淆时需要添加的
@@ -65,4 +65,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:support-v4:23.3.0'
     compile 'com.android.support:recyclerview-v7:23.3.0'
+    compile files('libs/BmobSDK_V3.4.7_0518.jar')
+    compile files('libs/okhttp-3.2.0.jar')
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">利未校园</string>
+    <string name="app_name">BetterPlay</string>
     <string name="feed_hint">请留下您宝贵的意见!</string>
     <string name="submit_feed">提交</string>
     <string name="common_issue">常见疑问</string>
@@ -11,4 +11,24 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+
+
+    <!--Common-->
+    <string name="not_login">请先登录</string>
+    <string name="error_network">网络错误</string>
+    <string name="error_unknown">请重试</string>
+
+    <!--SelfPage-->
+
+
+    <!--LoginActivity-->
+    <string name="error_account">账号或密码有误</string>
+    <string name="error_phone_illegal">请输入正确的手机号码</string>
+    <string name="error_pwd_illegal">密码输入不合法</string>
+    <string name="error_phone_empty">手机号不能为空</string>
+    <string name="error_pwd_empty">密码不能为空</string>
+    <string name="success_login">登录成功</string>
+    <string name="waiting_login">登录中</string>
+
 </resources>

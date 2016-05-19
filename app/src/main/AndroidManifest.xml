@@ -47,7 +47,7 @@
         >
         <activity android:name=".activity.Welcome" android:configChanges="orientation|keyboardHidden"
             android:windowSoftInputMode="stateHidden|adjustResize"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:theme="@style/SplashAtyTheme"
             >
 
             <intent-filter>

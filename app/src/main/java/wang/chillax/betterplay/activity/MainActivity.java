@@ -51,22 +51,26 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        CommunityFactory.getCommSDK(this);
+//        try{
+//            CommunityFactory.getCommSDK(this);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         initBmobService();
-        initUmengSdk();
+//        initUmengSdk();
         initPagers();
         initStatusBar();
 //        getPermission();
     }
 
-    private void initUmengSdk() {
-//        CommunitySDK mCommSDK = CommunityFactory.getCommSDK(getApplicationContext());
-//// 初始化sdk，请传递ApplicationContext
-//        mCommSDK.initSDK(getApplicationContext());
-    }
+//    private void initUmengSdk() {
+////        CommunitySDK mCommSDK = CommunityFactory.getCommSDK(getApplicationContext());
+////// 初始化sdk，请传递ApplicationContext
+////        mCommSDK.initSDK(getApplicationContext());
+//    }
     private void initBmobService() {
         // 初始化 Bmob SDK
         // 使用时请将第二个参数Application ID替换成你在Bmob服务器端创建的Application ID
@@ -110,7 +114,8 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
         mBottomMenu.setActionBar(mActionBar);
         mBottomMenu.setSelection(0);
     }
-    CommunityMainFragment mFeedsFragment;
+    CommunityMainFragment mFeedsFragment=App.mFeedsFragment;
+
     private void setCurrPage(int index) {
         FragmentTransaction ft = fm.beginTransaction();
         hidePages(ft);
@@ -125,15 +130,17 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
                 break;
             case 1:
                 if (fms[1] == null) {
-                    fms[1] = new FindPage();
-//                    ft.add(R.id.content, fms[1], "find");
-                    mFeedsFragment = new CommunityMainFragment();
-          //设置Feed流页面的返回按钮不可见
-                    mFeedsFragment.setBackButtonVisibility(View.INVISIBLE);
-                    ft.add(R.id.content, mFeedsFragment, "find");
+////                    fms[1] = new FindPage();
+////                    ft.add(R.id.content, fms[1], "find");
+//                    mFeedsFragment = new CommunityMainFragment();
+//          //设置Feed流页面的返回按钮不可见
+//                    mFeedsFragment.setBackButtonVisibility(View.INVISIBLE);
+                    fms[1]=mFeedsFragment;
+                    ft.add(R.id.content, fms[1], "find");
+                    ft.show(fms[1]);
          //添加并显示Fragment
                 } else {
-                    ft.show(mFeedsFragment);
+                    ft.show(fms[1]);
                 }
                 break;
             case 2:

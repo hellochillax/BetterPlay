@@ -326,7 +326,11 @@ class TopicDBAPIImpl extends AbsDbAPI<List<Topic>> implements TopicDBAPI {
                 Class<? extends Model> recommendTopicTable = refectModelClz("com.umeng.comm.core." +
                         "beans.relation.RecommendTopics");
                 if(recommendTopicTable != null){
-                    new Delete().from(recommendTopicTable).execute();
+                    try{
+                        new Delete().from(recommendTopicTable).execute();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
             }
         });

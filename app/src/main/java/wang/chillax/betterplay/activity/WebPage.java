@@ -19,6 +19,10 @@ import wang.chillax.betterplay.cusview.ToolBar;
  */
 public class WebPage extends BaseActivity implements ToolBar.ToolBarListener{
 
+
+    public static final String URL="url";
+    public static final String TITLE="title";
+
     @Bind(R.id.webview) WebView mWebView;
     @Bind(R.id.pb) ProgressBar mPb;
     @Bind(R.id.toolbar) ToolBar mToolBar;
@@ -52,8 +56,8 @@ public class WebPage extends BaseActivity implements ToolBar.ToolBarListener{
 
     @Override
     protected void initViews() {
-        url=getIntent().getStringExtra("url");
-        title=getIntent().getStringExtra("title");
+        url=getIntent().getStringExtra(URL);
+        title=getIntent().getStringExtra(TITLE);
         mToolBar.setToolBarListener(this);
     }
 

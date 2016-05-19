@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.sina.weibo.sdk.api.WebpageObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +33,7 @@ import wang.chillax.betterplay.utils.ScreenUtil;
 /**
  * Created by MAC on 16/3/22.
  */
-public class GroupDetailAty extends BaseActivity implements ToolBar.ToolBarListener {
+public class GroupDetailAty extends BaseActivity implements ToolBar.ToolBarListener ,GroupListView.OnGLVItemClickedListener{
 
 
     @Bind(R.id.action_bar)
@@ -65,6 +68,7 @@ public class GroupDetailAty extends BaseActivity implements ToolBar.ToolBarListe
     protected void initViews() {
         mToolBar.setToolBarListener(this);
         mHeaderView = mGlv.getHeaderView();
+        mGlv.setGLVItemClickedListener(this);
     }
 
 //    private View createHeaderView() {
@@ -103,7 +107,7 @@ public class GroupDetailAty extends BaseActivity implements ToolBar.ToolBarListe
         if(BmobUser.getCurrentUser(this)!=null){
             doBuyAction();
         }else {
-            showToast("请先登陆");
+            showToast(getResources().getString(R.string.not_login));
             doLoginAction();
         }
     }
@@ -115,7 +119,7 @@ public class GroupDetailAty extends BaseActivity implements ToolBar.ToolBarListe
 
     private void doBuyAction() {
         if (mDetailData==null){
-            showToast("请刷新重试");
+            showToast(getResources().getString(R.string.error_network));
         }else {
             Intent intent=new Intent(this,BuyPage.class);
             ArrayList<GroupDetail> list=new ArrayList<>();
@@ -129,7 +133,20 @@ public class GroupDetailAty extends BaseActivity implements ToolBar.ToolBarListe
     @Override
     public void onInit(ImageView back, TextView titleLeft, TextView titleCenter, TextView titleRight, ImageView more) {
         titleCenter.setText("商家详情");
-        titleRight.setText("点击购买");
+        titleRight.setText("购买");
+    }
+
+    @Override
+    public void onItemClicked(int group, int position) {
+        if(group==2){
+            if(!TextUtils.isEmpty(mDetailData.getGroup_address())){
+                Intent intent=new Intent(this, WebPage.class);
+                intent.putExtra(WebPage.URL,mDetailData.getGroup_address())
+                        .putExtra(WebPage.TITLE,"详情");
+                startActivity(intent);
+                playOpenAnimation();
+            }
+        }
     }
 
     private class MyAdapter extends GLVAdapter {
@@ -197,7 +214,7 @@ public class GroupDetailAty extends BaseActivity implements ToolBar.ToolBarListe
         @Override
         protected Void doInBackground(Void... params) {
             BmobQuery<GroupDetail> query = new BmobQuery<>();
-            query.addWhereEqualTo("group_id", 1);
+            query.addWhereEqualTo("group_id", mGroupFriend.getId());
             query.findObjects(GroupDetailAty.this, new FindListener<GroupDetail>() {
                 @Override
                 public void onSuccess(List<GroupDetail> list) {
@@ -209,7 +226,7 @@ public class GroupDetailAty extends BaseActivity implements ToolBar.ToolBarListe
                 @Override
                 public void onError(int i, String s) {
                     LogUtils.d(i+":"+s);
-                    showToast("网络错误,请重试");
+                    showToast(getResources().getString(R.string.error_network));
                 }
             });
             return null;

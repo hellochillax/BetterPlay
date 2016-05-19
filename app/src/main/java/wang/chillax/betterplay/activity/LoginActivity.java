@@ -48,7 +48,7 @@ public class LoginActivity extends BaseActivity implements ToolBar.ToolBarListen
     }
 
     private void doLoginTask(final String phone, final String pwd) {
-        showLoadingDialog("登陆中...");
+        showLoadingDialog(getResources().getString(R.string.waiting_login));
         UserUtil.login(this, phone, pwd, new UserUtil.LoginListenerr() {
             @Override
             public void onSuccess() {
@@ -63,13 +63,13 @@ public class LoginActivity extends BaseActivity implements ToolBar.ToolBarListen
             public void onFailure(int code, String msg) {
                 switch (code) {
                     case UserUtil.CODE_DATA_ERROR:
-                        showToast("账号或密码有误");
+                        showToast(getResources().getString(R.string.error_account));
                         break;
                     case UserUtil.CODE_DATA_NET_EOORO:
-                        showToast("网络不可用");
+                        showToast(getResources().getString(R.string.error_network));
                         break;
                     default:
-                        showToast("登陆失败,请重试");
+                        showToast(getResources().getString(R.string.error_unknown));
                         break;
                 }
                 hideLoadingDialog();
@@ -96,13 +96,13 @@ public class LoginActivity extends BaseActivity implements ToolBar.ToolBarListen
                     loginSuccess();
                 }else{
                     UserUtil.getCurrentUser(mBaseAty).logOut(mBaseAty);
-                    showToast("请重试");
+                    showToast(getResources().getString(R.string.error_unknown));
                 }
 
             }
 
             private void loginSuccess() {
-                showToast("登陆成功");
+                showToast(getResources().getString(R.string.success_login));
                 hideLoadingDialog();
                 setResult(RESULT_OK);
                 onBackPressed();
@@ -178,13 +178,13 @@ public class LoginActivity extends BaseActivity implements ToolBar.ToolBarListen
     }
     private boolean checkUserLegal(String phone, String pwd) {
         if(TextUtils.isEmpty(phone)){
-            showToast("手机号不能为空");
+            showToast(getResources().getString(R.string.error_phone_empty));
         }else if(TextUtils.isEmpty(pwd)){
-            showToast("密码不能为空");
+            showToast(getResources().getString(R.string.error_pwd_empty));
         }else if(!RegularUtils.checkPhoneNum(phone)){
-            showToast("请输入正确的手机号码");
+            showToast(getResources().getString(R.string.error_phone_illegal));
         }else if(!RegularUtils.checkPwd(pwd)){
-            showToast("密码输入不合法");
+            showToast(getResources().getString(R.string.error_pwd_illegal));
         }else {
             return true;
         }
