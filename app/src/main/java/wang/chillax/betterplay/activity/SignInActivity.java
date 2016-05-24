@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.InputType;
@@ -17,22 +16,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.sina.weibo.sdk.api.WebpageObject;
-import com.umeng.comm.core.CommunitySDK;
-import com.umeng.comm.core.beans.CommUser;
-import com.umeng.comm.core.constants.ErrorCode;
-import com.umeng.comm.core.impl.CommunityFactory;
-import com.umeng.comm.core.login.LoginListener;
-
 import butterknife.Bind;
-import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cn.bmob.v3.BmobUser;
 import wang.chillax.betterplay.R;
-import wang.chillax.betterplay.bmob.User;
 import wang.chillax.betterplay.config.Urls;
 import wang.chillax.betterplay.cusview.ToolBar;
-import wang.chillax.betterplay.utils.LogUtils;
 import wang.chillax.betterplay.utils.RegularUtils;
 import wang.chillax.betterplay.utils.SmsObserver;
 import wang.chillax.betterplay.utils.UserUtil;
@@ -144,7 +132,7 @@ public class SignInActivity extends BaseActivity implements ToolBar.ToolBarListe
     private void doStepThree() {
         pwd = edit1.getText().toString();
         String pwd2 = edit2.getText().toString();
-        if (checkDoublePwd(pwd, pwd2)) {
+        if (checkDoublePwd(pwd, pwd2)&&RegularUtils.checkPwd(pwd)) {
             currPage++;
             doNextStep();
         }
