@@ -35,6 +35,8 @@ import wang.chillax.betterplay.utils.LogUtils;
  */
 public class Welcome extends Activity {
 
+    public static final int CODE_REQ_WELCOME=0x01;
+
     /**
      * 欢迎界面停留的时间间隔
      */
@@ -70,9 +72,6 @@ public class Welcome extends Activity {
         }catch (Exception e){
             e.printStackTrace();
         }
-        App.mFeedsFragment = new CommunityMainFragment();
-        //设置Feed流页面的返回按钮不可见
-        App.mFeedsFragment.setBackButtonVisibility(View.INVISIBLE);
     }
 
 
@@ -96,9 +95,14 @@ public class Welcome extends Activity {
 
 
     private void openMainActivity() {
-        startActivity(new Intent(this,MainActivity.class));
-        finish();
+        startActivityForResult(new Intent(this,MainActivity.class),CODE_REQ_WELCOME);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        onBackPressed();
+    }
+
     private void initImageLoader() {
         DisplayImageOptions mOptions = new DisplayImageOptions.Builder().showImageOnLoading(0) // 设置图片在下载期间显示的图片
                 .showImageForEmptyUri(0)// 设置图片Uri为空或是错误的时候显示的图片

@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
     private void initBmobService() {
         // 初始化 Bmob SDK
         // 使用时请将第二个参数Application ID替换成你在Bmob服务器端创建的Application ID
-        Bmob.initialize(this, Keys.BMOB_APP_ID);
-        BP.init(this,Keys.BMOB_APP_ID);
+        Bmob.initialize(getApplicationContext(), Keys.BMOB_APP_ID);
+        BP.init(getApplicationContext(),Keys.BMOB_APP_ID);
     }
 
     private void initStatusBar() {
@@ -112,9 +112,11 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
         }
         mBottomMenu.setOnSelectedListener(this);
         mBottomMenu.setActionBar(mActionBar);
+        mBottomMenu.setSelection(1);
         mBottomMenu.setSelection(0);
+        setResult(Welcome.CODE_REQ_WELCOME);
     }
-    CommunityMainFragment mFeedsFragment=App.mFeedsFragment;
+    CommunityMainFragment mFeedsFragment;
 
     private void setCurrPage(int index) {
         FragmentTransaction ft = fm.beginTransaction();
@@ -132,9 +134,9 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
                 if (fms[1] == null) {
 ////                    fms[1] = new FindPage();
 ////                    ft.add(R.id.content, fms[1], "find");
-//                    mFeedsFragment = new CommunityMainFragment();
-//          //设置Feed流页面的返回按钮不可见
-//                    mFeedsFragment.setBackButtonVisibility(View.INVISIBLE);
+                    mFeedsFragment = new CommunityMainFragment();
+          //设置Feed流页面的返回按钮不可见
+                    mFeedsFragment.setBackButtonVisibility(View.INVISIBLE);
                     fms[1]=mFeedsFragment;
                     ft.add(R.id.content, fms[1], "find");
                     ft.show(fms[1]);
@@ -206,14 +208,14 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
 //        }
 //    }
 
-    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(this)
-                .setMessage(message)
-                .setPositiveButton("OK", okListener)
-                .setNegativeButton("Cancel", null)
-                .create()
-                .show();
-    }
+//    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
+//        new AlertDialog.Builder(this)
+//                .setMessage(message)
+//                .setPositiveButton("OK", okListener)
+//                .setNegativeButton("Cancel", null)
+//                .create()
+//                .show();
+//    }
 
     @Override
     public void onBackPressed() {

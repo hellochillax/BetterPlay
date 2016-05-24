@@ -6,15 +6,17 @@
     android:background="@color/bottom_menu_bg_color"
     >
     <RelativeLayout
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1.0">
-        <LinearLayout
-            android:id="@+id/page_1"
+        <LinearLayout android:id="@+id/page_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_centerInParent="true"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:gravity="center">
             <ImageView
                 android:id="@+id/find_image"
@@ -30,14 +32,16 @@
         </LinearLayout>
     </RelativeLayout>
     <RelativeLayout
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1.4">
-        <LinearLayout
-            android:id="@+id/page_2"
+        <LinearLayout android:id="@+id/page_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             android:layout_centerInParent="true"
             android:gravity="center">
             <ImageView
@@ -52,15 +56,18 @@
                 style="@style/bottom_menu_item_text_style"
                 android:text="论坛"/>
         </LinearLayout>
-    </RelativeLayout><RelativeLayout
+    </RelativeLayout>
+    <RelativeLayout
+
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_weight="1.0">
-    <LinearLayout
-        android:id="@+id/page_3"
+    <LinearLayout android:id="@+id/page_3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
         android:layout_centerInParent="true"
         android:gravity="center">
         <ImageView

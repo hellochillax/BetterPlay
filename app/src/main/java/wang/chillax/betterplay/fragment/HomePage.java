@@ -2,8 +2,6 @@ package wang.chillax.betterplay.fragment;
 
 
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -121,12 +119,13 @@ public class HomePage extends BasePage implements PtrHandler {
         List<GroupFriend> glists=mHomeDao.getHomeLists();
         if (glists!=null){
             contentList=glists;
+            GroupFriend.sortByPriority(contentList);
             mAdapter.notifyDataSetChanged();
         }
     }
 
     private void loadTopView() {
-        new TopTask().execute();
+        doTopTask();
     }
 
     private void initContentGv() {
@@ -135,12 +134,17 @@ public class HomePage extends BasePage implements PtrHandler {
         mContentGv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent i=new Intent(context, GroupDetailAty.class);
-                ArrayList<GroupFriend> list=new ArrayList<>();
-                list.add(contentList.get(position-3));
-                i.putParcelableArrayListExtra("action",list);
-                startActivity(i);
-                playOpenAnimation();
+                GroupFriend item=contentList.get(position-3);
+                if(item.getPrice()<=0){
+                    showToast(getResources().getString(R.string.not_start));
+                }else{
+                    Intent i=new Intent(context, GroupDetailAty.class);
+                    ArrayList<GroupFriend> list=new ArrayList<>();
+                    list.add(item);
+                    i.putParcelableArrayListExtra("action",list);
+                    startActivity(i);
+                    playOpenAnimation();
+                }
             }
         });
 
@@ -170,41 +174,34 @@ public class HomePage extends BasePage implements PtrHandler {
 
     @Override
     public void onRefreshBegin(PtrFrameLayout frame) {
-        new TopTask().execute();
-        new ContentTask().execute();
+        doTopTask();
+        doCoententTask();
     }
 
 
-    private class TopTask extends AsyncTask<Void,Void,Void>{
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            BmobQuery<TopImage> quary=new BmobQuery<>();
-            quary.setLimit(100);
-            quary.findObjects(context, new FindListener<TopImage>() {
-                @Override
-                public void onSuccess(List<TopImage> list) {
-                    mTopImages=list;
-                    if(mTopImages!=null){
-                        refreshLocalTop();
-                        LogUtils.d(list.toString());
-                    }
+    public void doTopTask(){
+        BmobQuery<TopImage> quary=new BmobQuery<>();
+        quary.setLimit(100);
+        quary.findObjects(context, new FindListener<TopImage>() {
+            @Override
+            public void onSuccess(List<TopImage> list) {
+                mTopImages=list;
+                if(mTopImages!=null){
+                    refreshLocalTop();
+                    LogUtils.d(list.toString());
+                    mPtrFrame.refreshComplete();
                 }
+            }
 
-                @Override
-                public void onError(int i, String s) {
-                    showToast(getResources().getString(R.string.error_network));
-                    LogUtils.e(s);
-                }
-            });
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            mPtrFrame.refreshComplete();
-        }
+            @Override
+            public void onError(int i, String s) {
+                showToast(getResources().getString(R.string.error_network));
+                LogUtils.e(s);
+                mPtrFrame.refreshComplete();
+            }
+        });
     }
+
 
     /**
      * 顶部数据获取成功后,在这里更新UI
@@ -223,33 +220,26 @@ public class HomePage extends BasePage implements PtrHandler {
         mRollVp.notifyDataChange();
     }
 
-    private class ContentTask extends AsyncTask<Void,Void,Void>{
+    public void doCoententTask(){
+        BmobQuery<GroupFriend> quary=new BmobQuery<>();
+        quary.setLimit(100);
+        quary.findObjects(context, new FindListener<GroupFriend>() {
+            @Override
+            public void onSuccess(List<GroupFriend> list) {
+                contentList=list;
+                GroupFriend.sortByPriority(contentList);
+                mAdapter.notifyDataSetChanged();
+                LogUtils.d(list.toString());
+                mPtrFrame.refreshComplete();
+            }
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            BmobQuery<GroupFriend> quary=new BmobQuery<>();
-            quary.setLimit(100);
-            quary.findObjects(context, new FindListener<GroupFriend>() {
-                @Override
-                public void onSuccess(List<GroupFriend> list) {
-                    contentList=list;
-                    mAdapter.notifyDataSetChanged();
-                    LogUtils.d(list.toString());
-                }
-
-                @Override
-                public void onError(int i, String s) {
-                    showToast(getResources().getString(R.string.error_network));
-                    LogUtils.e(s);
-                }
-            });
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            mPtrFrame.refreshComplete();
-        }
+            @Override
+            public void onError(int i, String s) {
+                showToast(getResources().getString(R.string.error_network));
+                LogUtils.e(s);
+                mPtrFrame.refreshComplete();
+            }
+        });
     }
 
     private class ContentAdapter extends BaseAdapter{

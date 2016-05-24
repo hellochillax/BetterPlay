@@ -18,6 +18,9 @@
     <string name="error_network">网络错误</string>
     <string name="error_unknown">请重试</string>
 
+    <!--HomePage-->
+    <string name="not_start">活动尚未开始</string>
+
     <!--SelfPage-->
 
 
