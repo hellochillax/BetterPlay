@@ -27,7 +27,7 @@ public class HomeListDao {
         if (group==null)return;
         SQLiteDatabase db=mHelper.getWritableDatabase();
         if(db.isOpen()){
-            db.execSQL(insertSql,new Object[]{group.getId(),group.getName(),group.getPrice(),group.getNote(),group.getLogoUrl()!=null?group.getLogoUrl():group.getLogo().getFileUrl(mContext)});
+            db.execSQL(insertSql,new Object[]{group.getId(),group.getName(),group.getPrice(),group.getNote(),group.getLogoUrl()!=null?group.getLogoUrl():group.getLogo().getFileUrl(mContext),group.getPriority()});
             db.close();
         }
     }

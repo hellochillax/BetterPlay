@@ -1,385 +1,288 @@
 package wang.chillax.betterplay.cusview;
 
 import android.content.Context;
-import android.graphics.PointF;
+import android.content.res.TypedArray;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Scroller;
-import android.widget.TextView;
-
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
 
 import wang.chillax.betterplay.R;
-import wang.chillax.betterplay.utils.LogUtils;
-import wang.chillax.betterplay.utils.ScreenUtil;
+import wang.chillax.betterplay.utils.ImageLoader;
 
-public class RollViewPager extends ViewPager {
-    private String TAG = "RollViewPager";
-    private int MAX_PAGE_NUM = Integer.MAX_VALUE;//ViewPager最大页数，用于设置伪无限循环效果
-    private int PAGE_CHANGE_DURATION = 1000;//ViewPager更换页面的间隔
-    private int PAGE_CHANGE_SPEED = 2000;//ViewPager切换页面的速度
+public class RollViewPager extends ViewPager{
+
     private Context context;
-    private int currentItem;
-    private ArrayList<String> uriList;
-    private TextView title;
-    private ArrayList<String> titles;
-    private int[] resImageIds;
-    private OnPagerClickCallback onPagerClickCallback;
-    private boolean isShowResImage = true;
-//    MyOnTouchListener myOnTouchListener;
-    ViewPagerTask viewPagerTask;
-    private PagerAdapter adapter;
+    private int dot_normal_res = 0;
+    private int dot_focus_res = 0;
+    private int dot_radius = 10;
 
-//    /**
-//     * 触摸时按下的点 *
-//     */
-//    PointF downP = new PointF();
-//    /**
-//     * 触摸时当前的点 *
-//     */
-//    PointF curP = new PointF();
-    private int abc = 1;
+    private RollAdapter mAdapter;
+    private int[] mImageRes;
+    private List<String> mImageUrls;
+
+    private int ITEM_DURATION = 2000;
+    private int ITEM_INTERVAL = 2000;
+    private final int MAX_VALUE=Integer.MAX_VALUE;
+    private int currItem;//current item of viewpager
+
+    private boolean mScroll = false;
     private float mLastMotionX;
     private float mLastMotionY;
 
+    /**
+     * update the item of viewpager every  ITEM_INTERVAL
+     */
+    private Handler mHandler=new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            setCurrentItem(++currItem);
+            mHandler.sendMessageDelayed(mHandler.obtainMessage(),ITEM_INTERVAL);
+        }
+    };
 
-//    private long start = 0;
-
-    int dot_normal,dot_focus;
-    ViewGroup layout;
-    List<View> dotList;
-
-    public void setDots(ViewGroup layout, int dot_normal, int dot_focus) {
-        this.layout=layout;
-        this.dot_normal=dot_normal;
-        this.dot_focus=dot_focus;
+    /**
+     * construct method for xml usage
+     */
+    public RollViewPager(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        this.context = context;
+        initSomeAttrs(attrs);
+        initOthers();
     }
 
+    private void initOthers() {
+        mAdapter=new RollAdapter();
+        setAdapter(mAdapter);
+        addOnPageChangeListener(new RollChangeListener());
+        new RollScroll(context,new AccelerateDecelerateInterpolator()).install();
+    }
 
-//    public class MyOnTouchListener implements OnTouchListener {
-//        @Override
-//        public boolean onTouch(View v, MotionEvent event) {
-//            curP.x = event.getX();
-//            curP.y = event.getY();
-//            switch (event.getAction()) {
-//                case MotionEvent.ACTION_DOWN:
-//
-//                    start = System.currentTimeMillis();
-//                    // 记录按下时候的坐标
-//                    // 切记不可用 downP = curP ，这样在改变curP的时候，downP也会改变
-//                    downP.x = event.getX();
-//                    downP.y = event.getY();
-//                    // 此句代码是为了通知他的父ViewPager现在进行的是本控件的操作，不要对我的操作进行干扰
-//                    // getParent().requestDisallowInterceptTouchEvent(true);
-//                    break;
-//                case MotionEvent.ACTION_MOVE:
-//                    Log.i("d", (curP.x - downP.x) + "----" + (curP.y - downP.y));
-//                    // if (Math.abs(curP.x - downP.x) > Math.abs(curP.y - downP.y)
-//                    // && (getCurrentItem() == 0 || getCurrentItem() == getAdapter()
-//                    // .getCount() - 1)) {
-//                    // getParent().requestDisallowInterceptTouchEvent(false);
-//                    // } else {
-//                    // getParent().requestDisallowInterceptTouchEvent(false);
-//                    // }
-//                    // 此句代码是为了通知他的父ViewPager现在进行的是本控件的操作，不要对我的操作进行干扰
-//                    break;
-//                case MotionEvent.ACTION_CANCEL:
-//                    // getParent().requestDisallowInterceptTouchEvent(false);
-//                    break;
-//                case MotionEvent.ACTION_UP:
-//                    downP.x = event.getX();
-//                    downP.y = event.getY();
-//                    long duration = System.currentTimeMillis() - start;
-//                    break;
-//            }
-//            return true;
-//        }
-//    }
+    /**
+     * init the params from xml tag,eg:android:layout_width=wrap_content
+     */
+    private void initSomeAttrs(AttributeSet attrs) {
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.RollViewPager);
+        ITEM_DURATION = (int) ta.getDimension(R.styleable.RollViewPager_item_duration, ITEM_DURATION);
+        ITEM_INTERVAL = (int) ta.getDimension(R.styleable.RollViewPager_item_interval, ITEM_INTERVAL);
+        dot_focus_res = ta.getResourceId(R.styleable.RollViewPager_dot_focus_res, dot_focus_res);
+        dot_normal_res = ta.getResourceId(R.styleable.RollViewPager_dot_normal_res, dot_normal_res);
+        dot_radius = ta.getDimensionPixelSize(R.styleable.RollViewPager_dot_radius, dot_radius);
+    }
 
+    public void setImageRes(int[] res){
+        mImageRes=res;
+    }
+
+    public void setImageUrls(List<String> urls){
+        mImageUrls=urls;
+        mAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * start to roll
+     */
+    public void startRoll(){
+        int len=0;
+        if(mImageUrls!=null&&mImageUrls.size()>0){
+            len=mImageUrls.size();
+        }else if(mImageRes!=null&&mImageRes.length>0){
+            len=mImageRes.length;
+        }
+        if(len<=0){
+            currItem=0;
+        }else{
+            currItem=MAX_VALUE/2/len*len;
+            try {
+                Field field=ViewPager.class.getDeclaredField("mCurItem");
+                field.setAccessible(true);
+                field.setInt(this,currItem);
+                field.setAccessible(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        mHandler.removeCallbacksAndMessages(null);
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(),ITEM_INTERVAL);
+    }
+
+    /**
+     * stop to roll
+     */
+    public void stopRoll(){
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
+    public void onStart(){
+        mHandler.removeCallbacksAndMessages(null);
+        mHandler.sendMessageDelayed(mHandler.obtainMessage(),ITEM_INTERVAL);
+    }
+    public void onStop(){
+        mHandler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         final float x = ev.getX();
         final float y = ev.getY();
-        switch (ev.getAction()) {
+        switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
-                getParent().requestDisallowInterceptTouchEvent(true);
-                abc = 1;
+                requestDisallowInterceptTouchEvent(true);
+                mScroll = true;
                 mLastMotionX = x;
                 mLastMotionY = y;
-                handler.removeCallbacksAndMessages(null);
+                onStop();
                 break;
             case MotionEvent.ACTION_MOVE:
-
-                handler.removeCallbacksAndMessages(null);
-                if (abc == 1) {
+                if (mScroll == true) {
                     if (Math.abs(x - mLastMotionX) < Math.abs(y - mLastMotionY)) {
-                        abc = 0;
+                        mScroll = false;
                         getParent().requestDisallowInterceptTouchEvent(false);
                     } else {
                         getParent().requestDisallowInterceptTouchEvent(true);
                     }
-
                 }
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                getParent().requestDisallowInterceptTouchEvent(false);
-                handler.postDelayed(viewPagerTask, PAGE_CHANGE_DURATION);
+                requestDisallowInterceptTouchEvent(false);
+                onStart();
                 break;
         }
         return super.dispatchTouchEvent(ev);
     }
 
-//    public void setChangeDuration(int duration) {
-//        if (duration > 0) {
-//            PAGE_CHANGE_DURATION = duration;
-//        }
-//    }
-//
-//    public void setChangeSpeed(int speed, Interpolator interpolator) {
-//
-//        if (speed > 0) {
-//            PAGE_CHANGE_SPEED=speed;
-//            new ViewPagerScroller(context, interpolator).initViewPagerScroll(this);
-//        }
-//    }
+    public void notifyDataSetChanged() {
+        mAdapter.notifyDataSetChanged();
+    }
 
-    public class ViewPagerTask implements Runnable {
+    /**
+     * the adapter of RollViewPager
+     */
+    private class RollAdapter extends PagerAdapter {
+
+
         @Override
-        public void run() {
-            currentItem = currentItem + 1;
-            handler.obtainMessage().sendToTarget();
+        public void notifyDataSetChanged() {
+            super.notifyDataSetChanged();
         }
-    }
 
-    private Handler handler = new Handler() {
         @Override
-        public void handleMessage(Message msg) {
-            RollViewPager.this.setCurrentItem(currentItem);
-            postDelayed(viewPagerTask, PAGE_CHANGE_DURATION);
-        }
-    };
-
-    public RollViewPager(Context context,
-                         OnPagerClickCallback onPagerClickCallback) {
-        super(context);
-        this.context = context;
-        this.onPagerClickCallback = onPagerClickCallback;
-        viewPagerTask = new ViewPagerTask();
-//        myOnTouchListener = new MyOnTouchListener();
-        new ViewPagerScroller(context,new AccelerateDecelerateInterpolator()).setScrollDuration(PAGE_CHANGE_SPEED).initViewPagerScroll(this);
-    }
-
-    public void setUriList(ArrayList<String> uriList) {
-        isShowResImage = false;
-        this.uriList = uriList;
-
-    }
-
-    public void notifyDataChange() {
-        if(uriList!=null&&uriList.size()>0&&layout!=null&&dot_normal!=0&&dot_focus!=0){
-            layout.removeAllViews();
-            if(dotList!=null)dotList.clear();else dotList=new ArrayList<>();
-            final int size=uriList.size();
-            final int radius=ScreenUtil.dp2px(context,10);
-            final LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(radius,radius);
-            lp.setMargins(radius/3,radius/3,radius/3,radius/3);
-            for (int i=0;i<size;i++){
-                View view=new View(context);
-                view.setLayoutParams(lp);
-                view.setBackgroundResource(dot_normal);
-                layout.addView(view);
-                dotList.add(view);
+        public int getCount() {
+            if(mImageUrls!=null&&mImageUrls.size()>0){
+                return MAX_VALUE;
             }
-        }
-        adapter.notifyDataSetChanged();
-    }
-
-
-    public void setResImageIds(int[] resImageIds) {
-        isShowResImage = true;
-        this.resImageIds = resImageIds;
-    }
-
-    public void setTitle(TextView title, ArrayList<String> titles) {
-        this.title = title;
-        this.titles = titles;
-        if (title != null && titles != null && titles.size() > 0)
-            title.setText(titles.get(0));
-    }
-
-    private boolean hasSetAdapter = false;
-
-
-    public void startRoll() {
-        if (!hasSetAdapter) {
-            hasSetAdapter = true;
-//            addOnPageChangeListener(new MyOnPageChangeListener());
-            adapter = new ViewPagerAdapter();
-            this.setAdapter(adapter);
-            if (isShowResImage) {
-                currentItem = MAX_PAGE_NUM / 2 / resImageIds.length * resImageIds.length;
-            } else {
-                currentItem = MAX_PAGE_NUM / 2 / uriList.size() * uriList.size();
+            if(mImageRes!=null&&mImageRes.length>0){
+                return MAX_VALUE;
             }
+            return 0;
         }
-        //用反射直接改变CurrentItem为中间值，防止卡顿
-        try {
-            Field field = ViewPager.class.getDeclaredField("mCurItem");
-            field.setAccessible(true);
-            field.setInt(this, currentItem);
-            field.setAccessible(false);
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view==object;
         }
-        handler.postDelayed(viewPagerTask, PAGE_CHANGE_DURATION);
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            ImageView itemView=createItemView();
+            if(mImageUrls!=null&&mImageUrls.size()>0){
+                ImageLoader.getInstance().displayImage(mImageUrls.get(calRealPos(position)),itemView);
+            }else if(mImageRes!=null&&mImageRes.length>0){
+                itemView.setImageResource(mImageRes[calRealPos(position)]);
+            }
+            container.addView(itemView);
+            return itemView;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View)object);
+        }
     }
 
-    public void onStart() {
-        stopRoll();
-        handler.postDelayed(viewPagerTask, PAGE_CHANGE_DURATION);
-    }
-    public void onStop(){
-        stopRoll();
+    /**
+     * create a item of viewpager
+     * @return
+     */
+    private ImageView createItemView(){
+        ImageView item=new ImageView(context);
+        item.setScaleType(ImageView.ScaleType.FIT_XY);
+        LayoutParams lp=new LayoutParams();
+        item.setLayoutParams(lp);
+        return item;
     }
 
-    public void stopRoll() {
-        handler.removeCallbacksAndMessages(null);
+    /**
+     * calculate and return the real position of the res array
+     * @param pos
+     * @return
+     */
+    private int calRealPos(int pos){
+        if(mImageUrls!=null&&mImageUrls.size()>0){
+            return pos%mImageUrls.size();
+        }
+        if(mImageRes!=null&&mImageRes.length>0){
+            return pos%mImageRes.length;
+        }
+        return 0;
     }
+    private class RollChangeListener implements OnPageChangeListener{
 
-    class MyOnPageChangeListener implements OnPageChangeListener {
-        int oldPosition = 0;
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
 
         @Override
         public void onPageSelected(int position) {
-            currentItem = position;
-            if (title != null)
-                title.setText(titles.get(position % titles.size()));
-            oldPosition = position;
-            if(dotList!=null&&dotList.size()>0){
-                for (View view:dotList)view.setBackgroundResource(dot_normal);
-                dotList.get(position % titles.size()).setBackgroundResource(dot_focus);
-            }
+            currItem=position;
         }
 
         @Override
         public void onPageScrollStateChanged(int state) {
-        }
-
-        @Override
-        public void onPageScrolled(int arg0, float arg1, int arg2) {
 
         }
     }
+    private class RollScroll extends Scroller{
 
-    class ViewPagerAdapter extends PagerAdapter {
-
-        @Override
-        public int getCount() {
-            return MAX_PAGE_NUM;
-        }
-
-        @Override
-        public Object instantiateItem(View container, final int position) {
-            View view = View.inflate(context, R.layout.viewpager_item, null);
-            ((ViewPager) container).addView(view);
-//            view.setOnTouchListener(myOnTouchListener);
-            view.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onPagerClickCallback.onPagerClick(position%uriList.size());
-                }
-            });
-            ImageView imageView = (ImageView) view.findViewById(R.id.image);
-            if (isShowResImage) {
-                imageView.setImageResource(resImageIds[position % resImageIds.length]);
-            } else {
-                ImageLoader.getInstance().displayImage(uriList.get(position % uriList.size()),
-                        imageView);
-            }
-            return view;
-        }
-
-        @Override
-        public boolean isViewFromObject(View arg0, Object arg1) {
-            return arg0 == arg1;
-        }
-
-        @Override
-        public void destroyItem(View arg0, int arg1, Object arg2) {
-            ((ViewPager) arg0).removeView((View) arg2);
-        }
-
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        handler.removeCallbacksAndMessages(null);
-        super.onDetachedFromWindow();
-    }
-
-    public interface OnPagerClickCallback {
-        void onPagerClick(int position);
-    }
-    /**
-     * ViewPager 滚动速度设置
-     */
-    public class ViewPagerScroller extends Scroller {
-        private int mScrollDuration = 2000;             // 滑动速度
-
-        /**
-         * 设置速度速度
-         *
-         * @param duration
-         */
-        public ViewPagerScroller setScrollDuration(int duration) {
-            this.mScrollDuration = duration;
-            return this;
-        }
-
-        public ViewPagerScroller(Context context) {
-            super(context);
-        }
-
-        public ViewPagerScroller(Context context, Interpolator interpolator) {
+        public RollScroll(Context context, Interpolator interpolator) {
             super(context, interpolator);
-        }
-
-        public ViewPagerScroller(Context context, Interpolator interpolator, boolean flywheel) {
-            super(context, interpolator, flywheel);
-        }
-
-        @Override
-        public void startScroll(int startX, int startY, int dx, int dy, int duration) {
-            super.startScroll(startX, startY, dx, dy, mScrollDuration);
         }
 
         @Override
         public void startScroll(int startX, int startY, int dx, int dy) {
-            super.startScroll(startX, startY, dx, dy, mScrollDuration);
+            super.startScroll(startX, startY, dx, dy,ITEM_DURATION);
         }
 
-        public void initViewPagerScroll(ViewPager viewPager) {
+        @Override
+        public void startScroll(int startX, int startY, int dx, int dy, int duration) {
+            super.startScroll(startX, startY, dx, dy, ITEM_DURATION);
+        }
+
+        public void install(){
             try {
-                Field mScroller = ViewPager.class.getDeclaredField("mScroller");
-                mScroller.setAccessible(true);
-                mScroller.set(viewPager, this);
+                Field field=ViewPager.class.getDeclaredField("mScroller");
+                field.setAccessible(true);
+                field.set(RollViewPager.this,this);
+                field.setAccessible(false);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
         }
     }
+
 }

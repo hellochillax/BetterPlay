@@ -71,12 +71,6 @@ public class GroupDetailAty extends BaseActivity implements ToolBar.ToolBarListe
         mGlv.setGLVItemClickedListener(this);
     }
 
-//    private View createHeaderView() {
-//        ImageView header = new ImageView(this);
-//        header.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ScreenUtil.dp2px(this, 40)));
-//        return header;
-//    }
-
     @Override
     protected int initLayoutRes() {
         return R.layout.aty_group_detail;

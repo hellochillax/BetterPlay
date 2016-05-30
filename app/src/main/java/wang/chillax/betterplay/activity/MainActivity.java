@@ -36,6 +36,7 @@ import wang.chillax.betterplay.cusview.BottomMenu;
 import wang.chillax.betterplay.fragment.FindPage;
 import wang.chillax.betterplay.fragment.HomePage;
 import wang.chillax.betterplay.fragment.SelfPage;
+import wang.chillax.betterplay.utils.LogUtils;
 
 public class MainActivity extends AppCompatActivity implements BottomMenu.OnBottomMenuSelectedListener {
 
@@ -66,11 +67,6 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
 //        getPermission();
     }
 
-//    private void initUmengSdk() {
-////        CommunitySDK mCommSDK = CommunityFactory.getCommSDK(getApplicationContext());
-////// 初始化sdk，请传递ApplicationContext
-////        mCommSDK.initSDK(getApplicationContext());
-//    }
     private void initBmobService() {
         // 初始化 Bmob SDK
         // 使用时请将第二个参数Application ID替换成你在Bmob服务器端创建的Application ID
@@ -84,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
         }
         SystemBarTintManager tintManager = new SystemBarTintManager(this);
         tintManager.setStatusBarTintEnabled(true);
-        tintManager.setStatusBarTintResource(R.color.colorPrimaryDark);//通知栏所需颜色
+        tintManager.setStatusBarTintResource(R.color.action_bar_bg_color);//通知栏所需颜色
     }
 
     @TargetApi(19)
@@ -112,9 +108,7 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
         }
         mBottomMenu.setOnSelectedListener(this);
         mBottomMenu.setActionBar(mActionBar);
-        mBottomMenu.setSelection(1);
         mBottomMenu.setSelection(0);
-        setResult(Welcome.CODE_REQ_WELCOME);
     }
     CommunityMainFragment mFeedsFragment;
 
@@ -132,14 +126,11 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
                 break;
             case 1:
                 if (fms[1] == null) {
-////                    fms[1] = new FindPage();
-////                    ft.add(R.id.content, fms[1], "find");
                     mFeedsFragment = new CommunityMainFragment();
           //设置Feed流页面的返回按钮不可见
                     mFeedsFragment.setBackButtonVisibility(View.INVISIBLE);
                     fms[1]=mFeedsFragment;
                     ft.add(R.id.content, fms[1], "find");
-                    ft.show(fms[1]);
          //添加并显示Fragment
                 } else {
                     ft.show(fms[1]);
@@ -219,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
 
     @Override
     public void onBackPressed() {
-        moveTaskToBack(false);
+        moveTaskToBack(true);
     }
+
 }

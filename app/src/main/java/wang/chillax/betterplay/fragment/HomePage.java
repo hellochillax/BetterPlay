@@ -12,6 +12,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.yalantis.taurus.PullToRefreshView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,11 +42,10 @@ import wang.chillax.betterplay.utils.ScreenUtil;
 /**
  * Created by MAC on 15/12/1.
  */
-public class HomePage extends BasePage implements PtrHandler {
+public class HomePage extends BasePage {
 
-
-    @Bind(R.id.store_house_ptr_frame)
-    PtrFrameLayout mPtrFrame;
+    @Bind(R.id.pull_to_refresh)
+    PullToRefreshView mPtrView;
     @Bind(R.id.content_gv)
     HeaderGridView mContentGv;
     ContentAdapter mAdapter;
@@ -65,14 +66,13 @@ public class HomePage extends BasePage implements PtrHandler {
     @Override
     protected void initDatas() {
         loadFromCache();
-        mPtrFrame.autoRefresh();
     }
 
     @Override
     protected void initViews() {
         mTopDao=new TopImageDao(context);
         mHomeDao=new HomeListDao(context);
-        initPtrFrameLayout();
+        initPtrView();
         initHeaderView();
         initContentGv();
     }
@@ -81,31 +81,18 @@ public class HomePage extends BasePage implements PtrHandler {
         mHeaderView = (RelativeLayout) LayoutInflater.from(context).inflate(
                 R.layout.roll_viewpager, null);
         mContentGv.addHeaderView(mHeaderView);
-        mRollVp = new RollViewPager(context,new RollViewPager.OnPagerClickCallback() {
-            @Override
-            public void onPagerClick(int position) {
-                openTopPage(position);
-            }
-        });
+        mRollVp= (RollViewPager) mHeaderView.findViewById(R.id.top_vp);
         mRollVpUrls=new ArrayList<>();
-        mRollVpUrls.add("");//先添加一个无用的URL.
-        mTitles=new ArrayList<>();
-        mTitles.add("");
-        mRollVp.setUriList(mRollVpUrls);
-        mRollVp.setTitle((TextView) mHeaderView.findViewById(R.id.title),mTitles);
-        mRollVp.setDots((ViewGroup) mHeaderView.findViewById(R.id.dots_ll),R.mipmap.dot_normal,R.mipmap.dot_focus);
+        mRollVp.setImageUrls(mRollVpUrls);
         mRollVp.startRoll();
-        LinearLayout layout = (LinearLayout) mHeaderView
-                .findViewById(R.id.top_news_viewpager);
-        layout.addView(mRollVp);
         loadTopView();
     }
 
     private void openTopPage(int pos) {
         TopImage top=mTopImages.get(pos);
         Intent intent = new Intent(context, WebPage.class);
-        intent.putExtra("url",top.getAddress());
-        intent.putExtra("title",top.getTitle());
+        intent.putExtra(WebPage.URL,top.getAddress());
+        intent.putExtra(WebPage.TITLE,top.getTitle());
         startActivity(intent);
         playOpenAnimation();
     }
@@ -150,32 +137,20 @@ public class HomePage extends BasePage implements PtrHandler {
 
     }
 
-    private void initPtrFrameLayout() {
-        mPtrFrame.setPullToRefresh(true);
-        mPtrFrame.setPtrHandler(this);
-        // header
-        final StoreHouseHeader header = new StoreHouseHeader(context);
-        header.setPadding(0, ScreenUtil.dp2px(context, 15), 0, 0);
-        header.initWithString("Better Play");
-        mPtrFrame.setHeaderView(header);
-        mPtrFrame.addPtrUIHandler(header);
+
+    private void initPtrView() {
+        mPtrView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                doTopTask();
+                doCoententTask();
+            }
+        });
     }
 
     @Override
     protected int initLayoutRes() {
         return R.layout.page_home;
-    }
-
-
-    @Override
-    public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-        return mContentGv.getCount()>0&&mContentGv.getChildAt(0).getTop()>=0;
-    }
-
-    @Override
-    public void onRefreshBegin(PtrFrameLayout frame) {
-        doTopTask();
-        doCoententTask();
     }
 
 
@@ -189,7 +164,7 @@ public class HomePage extends BasePage implements PtrHandler {
                 if(mTopImages!=null){
                     refreshLocalTop();
                     LogUtils.d(list.toString());
-                    mPtrFrame.refreshComplete();
+                    mPtrView.setRefreshing(false);
                 }
             }
 
@@ -197,7 +172,7 @@ public class HomePage extends BasePage implements PtrHandler {
             public void onError(int i, String s) {
                 showToast(getResources().getString(R.string.error_network));
                 LogUtils.e(s);
-                mPtrFrame.refreshComplete();
+                mPtrView.setRefreshing(false);
             }
         });
     }
@@ -217,7 +192,7 @@ public class HomePage extends BasePage implements PtrHandler {
             mRollVpUrls.add(image.getImageUrl()!=null?image.getImageUrl():image.getImage().getFileUrl(context));
             mTitles.add(image.getTitle());
         }
-        mRollVp.notifyDataChange();
+        mRollVp.notifyDataSetChanged();
     }
 
     public void doCoententTask(){
@@ -230,14 +205,14 @@ public class HomePage extends BasePage implements PtrHandler {
                 GroupFriend.sortByPriority(contentList);
                 mAdapter.notifyDataSetChanged();
                 LogUtils.d(list.toString());
-                mPtrFrame.refreshComplete();
+                mPtrView.setRefreshing(false);
             }
 
             @Override
             public void onError(int i, String s) {
                 showToast(getResources().getString(R.string.error_network));
                 LogUtils.e(s);
-                mPtrFrame.refreshComplete();
+                mPtrView.setRefreshing(false);
             }
         });
     }
@@ -280,6 +255,8 @@ public class HomePage extends BasePage implements PtrHandler {
 
     @Override
     public void onDestroy() {
+        //onDestory中,当用户主动杀死后台进程时,系统留给onDestory保存数据的时间非常短,以至于
+        //数据根本保存不完就被强制退出,并不是代码的问题
         super.onDestroy();
         if(mTopImages.size()>0){
             mTopDao.clear();
@@ -293,5 +270,17 @@ public class HomePage extends BasePage implements PtrHandler {
                 mHomeDao.insert(friend);
             }
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mRollVp.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mRollVp.onStop();
     }
 }

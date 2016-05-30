@@ -35,7 +35,6 @@ import wang.chillax.betterplay.utils.LogUtils;
  */
 public class Welcome extends Activity {
 
-    public static final int CODE_REQ_WELCOME=0x01;
 
     /**
      * 欢迎界面停留的时间间隔
@@ -95,12 +94,8 @@ public class Welcome extends Activity {
 
 
     private void openMainActivity() {
-        startActivityForResult(new Intent(this,MainActivity.class),CODE_REQ_WELCOME);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        onBackPressed();
+        startActivity(new Intent(this,MainActivity.class));
+        finish();
     }
 
     private void initImageLoader() {

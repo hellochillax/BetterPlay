@@ -49,6 +49,14 @@
 -keep class cn.bmob.v3.** {*;}
 -keep class c.b.**{*;}
 
+#BmobPay
+-keep class c.b.BP
+-keep class c.b.PListener
+-keep class c.b.QListener
+-keepclasseswithmembers class c.b.BP{ *; }
+-keepclasseswithmembers class * implements c.b.PListener{ *; }
+-keepclasseswithmembers class * implements c.b.QListener{ *; }
+
 # 保证继承自BmobObject、BmobUser类的JavaBean不被混淆
 -keep class * extends cn.bmob.v3.BmobObject {
     *;

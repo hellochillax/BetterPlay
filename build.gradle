@@ -3,6 +3,7 @@
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.0'
@@ -12,6 +13,9 @@ buildscript {
 }
 
 allprojects {
+    //下拉刷新需要加的
+    version = VERSION_NAME
+    group = GROUP
     repositories {
         jcenter()
         mavenCentral()
@@ -24,4 +28,8 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+//下拉刷新框架需要添加的
+def isReleaseBuild() {
+    return version.contains("SNAPSHOT") == false
 }
