@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--ClipView-->
     <declare-styleable name="ClipView">
         <attr name="clip_size" format="dimension"/>
         <attr name="stroke_color" format="color"/>
         <attr name="stroke_width" format="dimension"/>
+    </declare-styleable>
+    <!--RollViewPager-->
+    <declare-styleable name="RollViewPager">
+        <attr name="dot_normal_res" format="reference"/>
+        <attr name="dot_focus_res" format="reference"/>
+        <attr name="dot_radius" format="dimension"/>
+        <attr name="item_interval" format="dimension"/>
+        <attr name="item_duration" format="dimension"/>
     </declare-styleable>
 </resources>

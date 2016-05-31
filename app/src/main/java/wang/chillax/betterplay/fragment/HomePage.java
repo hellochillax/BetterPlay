@@ -2,8 +2,8 @@ package wang.chillax.betterplay.fragment;
 
 
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Parcelable;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.yalantis.taurus.PullToRefreshView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,11 +44,10 @@ import wang.chillax.betterplay.utils.ScreenUtil;
 /**
  * Created by MAC on 15/12/1.
  */
-public class HomePage extends BasePage implements PtrHandler {
+public class HomePage extends BasePage {
 
-
-    @Bind(R.id.store_house_ptr_frame)
-    PtrFrameLayout mPtrFrame;
+    @Bind(R.id.pull_to_refresh)
+    PullToRefreshView mPtrView;
     @Bind(R.id.content_gv)
     HeaderGridView mContentGv;
     ContentAdapter mAdapter;
@@ -63,18 +64,29 @@ public class HomePage extends BasePage implements PtrHandler {
     TopImageDao mTopDao;//顶部数据缓存
     HomeListDao mHomeDao;//ListView的数据缓存
 
+    private static final int CODE_SAVE_ON_STOP=0x01;
+    Handler mHandler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case CODE_SAVE_ON_STOP:
+                    saveDataOnDestroy();
+                    break;
+            }
+        }
+    };
+
 
     @Override
     protected void initDatas() {
         loadFromCache();
-        mPtrFrame.autoRefresh();
     }
 
     @Override
     protected void initViews() {
         mTopDao=new TopImageDao(context);
         mHomeDao=new HomeListDao(context);
-        initPtrFrameLayout();
+        initPtrView();
         initHeaderView();
         initContentGv();
     }
@@ -83,31 +95,18 @@ public class HomePage extends BasePage implements PtrHandler {
         mHeaderView = (RelativeLayout) LayoutInflater.from(context).inflate(
                 R.layout.roll_viewpager, null);
         mContentGv.addHeaderView(mHeaderView);
-        mRollVp = new RollViewPager(context,new RollViewPager.OnPagerClickCallback() {
-            @Override
-            public void onPagerClick(int position) {
-                openTopPage(position);
-            }
-        });
+        mRollVp= (RollViewPager) mHeaderView.findViewById(R.id.top_vp);
         mRollVpUrls=new ArrayList<>();
-        mRollVpUrls.add("");//先添加一个无用的URL.
-        mTitles=new ArrayList<>();
-        mTitles.add("");
-        mRollVp.setUriList(mRollVpUrls);
-        mRollVp.setTitle((TextView) mHeaderView.findViewById(R.id.title),mTitles);
-        mRollVp.setDots((ViewGroup) mHeaderView.findViewById(R.id.dots_ll),R.mipmap.dot_normal,R.mipmap.dot_focus);
+        mRollVp.setImageUrls(mRollVpUrls);
         mRollVp.startRoll();
-        LinearLayout layout = (LinearLayout) mHeaderView
-                .findViewById(R.id.top_news_viewpager);
-        layout.addView(mRollVp);
         loadTopView();
     }
 
     private void openTopPage(int pos) {
         TopImage top=mTopImages.get(pos);
         Intent intent = new Intent(context, WebPage.class);
-        intent.putExtra("url",top.getAddress());
-        intent.putExtra("title",top.getTitle());
+        intent.putExtra(WebPage.URL,top.getAddress());
+        intent.putExtra(WebPage.TITLE,top.getTitle());
         startActivity(intent);
         playOpenAnimation();
     }
@@ -121,12 +120,13 @@ public class HomePage extends BasePage implements PtrHandler {
         List<GroupFriend> glists=mHomeDao.getHomeLists();
         if (glists!=null){
             contentList=glists;
+            GroupFriend.sortByPriority(contentList);
             mAdapter.notifyDataSetChanged();
         }
     }
 
     private void loadTopView() {
-        new TopTask().execute();
+        doTopTask();
     }
 
     private void initContentGv() {
@@ -135,26 +135,31 @@ public class HomePage extends BasePage implements PtrHandler {
         mContentGv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent i=new Intent(context, GroupDetailAty.class);
-                ArrayList<GroupFriend> list=new ArrayList<>();
-                list.add(contentList.get(position-3));
-                i.putParcelableArrayListExtra("action",list);
-                startActivity(i);
-                playOpenAnimation();
+                GroupFriend item=contentList.get(position-3);
+                if(item.getPrice()<=0){
+                    showToast(getResources().getString(R.string.not_start));
+                }else{
+                    Intent i=new Intent(context, GroupDetailAty.class);
+                    ArrayList<GroupFriend> list=new ArrayList<>();
+                    list.add(item);
+                    i.putParcelableArrayListExtra("action",list);
+                    startActivity(i);
+                    playOpenAnimation();
+                }
             }
         });
 
     }
 
-    private void initPtrFrameLayout() {
-        mPtrFrame.setPullToRefresh(true);
-        mPtrFrame.setPtrHandler(this);
-        // header
-        final StoreHouseHeader header = new StoreHouseHeader(context);
-        header.setPadding(0, ScreenUtil.dp2px(context, 15), 0, 0);
-        header.initWithString("Better Play");
-        mPtrFrame.setHeaderView(header);
-        mPtrFrame.addPtrUIHandler(header);
+
+    private void initPtrView() {
+        mPtrView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                doTopTask();
+                doCoententTask();
+            }
+        });
     }
 
     @Override
@@ -163,48 +168,29 @@ public class HomePage extends BasePage implements PtrHandler {
     }
 
 
-    @Override
-    public boolean checkCanDoRefresh(PtrFrameLayout frame, View content, View header) {
-        return mContentGv.getCount()>0&&mContentGv.getChildAt(0).getTop()>=0;
-    }
-
-    @Override
-    public void onRefreshBegin(PtrFrameLayout frame) {
-        new TopTask().execute();
-        new ContentTask().execute();
-    }
-
-
-    private class TopTask extends AsyncTask<Void,Void,Void>{
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            BmobQuery<TopImage> quary=new BmobQuery<>();
-            quary.setLimit(100);
-            quary.findObjects(context, new FindListener<TopImage>() {
-                @Override
-                public void onSuccess(List<TopImage> list) {
-                    mTopImages=list;
-                    if(mTopImages!=null){
-                        refreshLocalTop();
-                        LogUtils.d(list.toString());
-                    }
+    public void doTopTask(){
+        BmobQuery<TopImage> quary=new BmobQuery<>();
+        quary.setLimit(100);
+        quary.findObjects(context, new FindListener<TopImage>() {
+            @Override
+            public void onSuccess(List<TopImage> list) {
+                mTopImages=list;
+                if(mTopImages!=null){
+                    refreshLocalTop();
+                    LogUtils.d(list.toString());
+                    mPtrView.setRefreshing(false);
                 }
+            }
 
-                @Override
-                public void onError(int i, String s) {
-                    showToast(getResources().getString(R.string.error_network));
-                    LogUtils.e(s);
-                }
-            });
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            mPtrFrame.refreshComplete();
-        }
+            @Override
+            public void onError(int i, String s) {
+                showToast(getResources().getString(R.string.error_network));
+                LogUtils.e(s);
+                mPtrView.setRefreshing(false);
+            }
+        });
     }
+
 
     /**
      * 顶部数据获取成功后,在这里更新UI
@@ -220,36 +206,29 @@ public class HomePage extends BasePage implements PtrHandler {
             mRollVpUrls.add(image.getImageUrl()!=null?image.getImageUrl():image.getImage().getFileUrl(context));
             mTitles.add(image.getTitle());
         }
-        mRollVp.notifyDataChange();
+        mRollVp.notifyDataSetChanged();
     }
 
-    private class ContentTask extends AsyncTask<Void,Void,Void>{
+    public void doCoententTask(){
+        BmobQuery<GroupFriend> quary=new BmobQuery<>();
+        quary.setLimit(100);
+        quary.findObjects(context, new FindListener<GroupFriend>() {
+            @Override
+            public void onSuccess(List<GroupFriend> list) {
+                contentList=list;
+                GroupFriend.sortByPriority(contentList);
+                mAdapter.notifyDataSetChanged();
+                LogUtils.d(list.toString());
+                mPtrView.setRefreshing(false);
+            }
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            BmobQuery<GroupFriend> quary=new BmobQuery<>();
-            quary.setLimit(100);
-            quary.findObjects(context, new FindListener<GroupFriend>() {
-                @Override
-                public void onSuccess(List<GroupFriend> list) {
-                    contentList=list;
-                    mAdapter.notifyDataSetChanged();
-                    LogUtils.d(list.toString());
-                }
-
-                @Override
-                public void onError(int i, String s) {
-                    showToast(getResources().getString(R.string.error_network));
-                    LogUtils.e(s);
-                }
-            });
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            mPtrFrame.refreshComplete();
-        }
+            @Override
+            public void onError(int i, String s) {
+                showToast(getResources().getString(R.string.error_network));
+                LogUtils.e(s);
+                mPtrView.setRefreshing(false);
+            }
+        });
     }
 
     private class ContentAdapter extends BaseAdapter{
@@ -290,7 +269,13 @@ public class HomePage extends BasePage implements PtrHandler {
 
     @Override
     public void onDestroy() {
+        //onDestory中,当用户主动杀死后台进程时,系统留给onDestory保存数据的时间非常短,以至于
+        //数据根本保存不完就被强制退出,并不是代码的问题
         super.onDestroy();
+        saveDataOnDestroy();
+    }
+
+    private void saveDataOnDestroy() {
         if(mTopImages.size()>0){
             mTopDao.clear();
             for (TopImage image:mTopImages){
@@ -303,5 +288,18 @@ public class HomePage extends BasePage implements PtrHandler {
                 mHomeDao.insert(friend);
             }
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mRollVp.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mRollVp.onStop();
+        mHandler.obtainMessage(CODE_SAVE_ON_STOP).sendToTarget();
     }
 }

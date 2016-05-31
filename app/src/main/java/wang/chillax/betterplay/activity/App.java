@@ -32,10 +32,6 @@ public class App extends MultiDexApplication{
 //     */
 //    public static List<GroupFriend> actionList;
 
-    /**
-     * CommunityMainFragment创建时耗时很长,所以在这里预加载
-     */
-    public static CommunityMainFragment mFeedsFragment;
 
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);

@@ -51,7 +51,7 @@ public class TopImage extends BmobObject implements Parcelable{
 
         @Override
         public TopImage[] newArray(int size) {
-            return new TopImage[0];
+            return new TopImage[size];
         }
     };
 

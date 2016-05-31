@@ -21,6 +21,7 @@ import wang.chillax.betterplay.adapter.BaseAdapter;
 import wang.chillax.betterplay.adapter.ViewHolder;
 import wang.chillax.betterplay.bmob.User;
 import wang.chillax.betterplay.cusview.ToolBar;
+import wang.chillax.betterplay.fragment.SelfPage;
 
 /**
  * Created by MAC on 15/12/1.
@@ -109,6 +110,7 @@ public class UserInfo extends BaseActivity implements ToolBar.ToolBarListener{
 
     @Override
     public void onBackPressed() {
+        setResult(RESULT_OK);
         super.onBackPressed();
         overridePendingTransition(R.anim.slide_clam,R.anim.slide_out_right);
     }

@@ -10,7 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class HomeListHelper extends SQLiteOpenHelper {
 
     private static final String tableName="wang.chillax.betterplay.dao.HomeListHelper";
-    private static final String createTable="create table homelist(_id integer primary key,_name text,_price real,_note text,_logo text);";
+    private static final String createTable="create table homelist(_id integer primary key,_name text,_price real,_note text,_logo text,_priority integer);";
 
     public HomeListHelper(Context context) {
         super(context, tableName, null, 1);

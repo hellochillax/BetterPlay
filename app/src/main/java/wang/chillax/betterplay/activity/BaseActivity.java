@@ -80,7 +80,7 @@ public abstract class BaseActivity extends Activity {
         }
         SystemBarTintManager tintManager = new SystemBarTintManager(this);
         tintManager.setStatusBarTintEnabled(true);
-        tintManager.setStatusBarTintResource(R.color.colorPrimaryDark);//通知栏所需颜色
+        tintManager.setStatusBarTintResource(R.color.action_bar_bg_color);//通知栏所需颜色
     }
 
     @TargetApi(19)

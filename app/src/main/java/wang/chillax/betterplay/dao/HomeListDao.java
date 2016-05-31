@@ -15,7 +15,7 @@ import wang.chillax.betterplay.bmob.TopImage;
  */
 public class HomeListDao {
 
-    private static final String insertSql="insert into homelist(_id,_name,_price,_note,_logo) values(?,?,?,?,?)";
+    private static final String insertSql="insert into homelist(_id,_name,_price,_note,_logo,_priority) values(?,?,?,?,?,?)";
     private HomeListHelper mHelper;
     private Context mContext;
 
@@ -27,7 +27,7 @@ public class HomeListDao {
         if (group==null)return;
         SQLiteDatabase db=mHelper.getWritableDatabase();
         if(db.isOpen()){
-            db.execSQL(insertSql,new Object[]{group.getId(),group.getName(),group.getPrice(),group.getNote(),group.getLogoUrl()!=null?group.getLogoUrl():group.getLogo().getFileUrl(mContext)});
+            db.execSQL(insertSql,new Object[]{group.getId(),group.getName(),group.getPrice(),group.getNote(),group.getLogoUrl()!=null?group.getLogoUrl():group.getLogo().getFileUrl(mContext),group.getPriority()});
             db.close();
         }
     }
@@ -58,7 +58,7 @@ public class HomeListDao {
             Cursor c=db.rawQuery("select * from homelist",null);
             c.moveToFirst();
             while (!c.isAfterLast()){
-                lists.add(new GroupFriend(c.getInt(0),c.getString(1),c.getDouble(2),c.getString(3),c.getString(4)));
+                lists.add(new GroupFriend(c.getInt(0),c.getString(1),c.getDouble(2),c.getString(3),c.getString(4),c.getInt(5)));
                 c.moveToNext();
             }
             db.close();

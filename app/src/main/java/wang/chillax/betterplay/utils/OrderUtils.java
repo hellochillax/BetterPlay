@@ -27,10 +27,10 @@ public class OrderUtils {
 
     public static void pay(final Activity context, final GroupDetail detail, final  int count, final String code, final PayListenerr listenerr){
         /**
-         * 第5个参数为true时调用支付宝支付，为false时调用微信支付
+         * 第4个参数为true时调用支付宝支付，为false时调用微信支付
          */
         final double total=count*detail.getPrice();
-        BP.pay(context, detail.getTitle(), detail.getTitle(),total , true, new PListener() {
+        BP.pay(detail.getTitle(), detail.getTitle(),total , true, new PListener() {
             @Override
             public void orderId(String s) {
                 mOrderId=s;
@@ -45,7 +45,11 @@ public class OrderUtils {
             @Override
             public void fail(int i, String s) {
                 LogUtils.d(String.format("支付错误:%d..%s", i, s));
-                if (i == 10777) {
+                if(i==-3){
+                    if(listenerr!=null){
+                        listenerr.onFail("请先安装支付插件");
+                    }
+                }else if (i == 10777) {
                     BP.ForceFree();
                     pay(context,detail,count,code,listenerr);
                 } else if (i == 9010) {
@@ -89,7 +93,6 @@ public class OrderUtils {
                     params.put("id",mOrderId)
                             .put("user",BmobUser.getCurrentUser(context).getUsername())
                             .put("group",detail.getGroup_id())
-                            .put("code",code)
                             .put("back",detail.getBack())
                             .put("count",count)
                             .put("price",total);
