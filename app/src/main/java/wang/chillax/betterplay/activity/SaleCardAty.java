@@ -16,6 +16,7 @@ public class SaleCardAty extends BaseActivity implements ToolBar.ToolBarListener
     @Bind(R.id.toolbar)
     ToolBar mToolbar;
 
+
     @Override
     protected void initDatas() {
         mToolbar.setToolBarListener(this);
