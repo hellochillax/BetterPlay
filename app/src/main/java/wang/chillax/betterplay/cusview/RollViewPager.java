@@ -34,7 +34,7 @@ public class RollViewPager extends ViewPager{
     private List<String> mImageUrls;
 
     private int ITEM_DURATION = 2000;
-    private int ITEM_INTERVAL = 2000;
+    private int ITEM_INTERVAL = 4000;
     private final int MAX_VALUE=Integer.MAX_VALUE;
     private int currItem;//current item of viewpager
 
@@ -43,12 +43,12 @@ public class RollViewPager extends ViewPager{
     private float mLastMotionY;
 
     /**
-     * update the item of viewpager every  ITEM_INTERVAL
+     * update the item of viewpager every ITEM_INTERVAL
      */
-    private Handler mHandler=new Handler(Looper.getMainLooper()){
+    private Handler mHandler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            setCurrentItem(++currItem);
+            RollViewPager.this.setCurrentItem(++currItem,true);
             mHandler.sendMessageDelayed(mHandler.obtainMessage(),ITEM_INTERVAL);
         }
     };

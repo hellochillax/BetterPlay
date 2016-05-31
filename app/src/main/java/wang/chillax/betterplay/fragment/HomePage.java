@@ -2,6 +2,8 @@ package wang.chillax.betterplay.fragment;
 
 
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +63,18 @@ public class HomePage extends BasePage {
 
     TopImageDao mTopDao;//顶部数据缓存
     HomeListDao mHomeDao;//ListView的数据缓存
+
+    private static final int CODE_SAVE_ON_STOP=0x01;
+    Handler mHandler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case CODE_SAVE_ON_STOP:
+                    saveDataOnDestroy();
+                    break;
+            }
+        }
+    };
 
 
     @Override
@@ -258,6 +272,10 @@ public class HomePage extends BasePage {
         //onDestory中,当用户主动杀死后台进程时,系统留给onDestory保存数据的时间非常短,以至于
         //数据根本保存不完就被强制退出,并不是代码的问题
         super.onDestroy();
+        saveDataOnDestroy();
+    }
+
+    private void saveDataOnDestroy() {
         if(mTopImages.size()>0){
             mTopDao.clear();
             for (TopImage image:mTopImages){
@@ -282,5 +300,6 @@ public class HomePage extends BasePage {
     public void onStop() {
         super.onStop();
         mRollVp.onStop();
+        mHandler.obtainMessage(CODE_SAVE_ON_STOP).sendToTarget();
     }
 }

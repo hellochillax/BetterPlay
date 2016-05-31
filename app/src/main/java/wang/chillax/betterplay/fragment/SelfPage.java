@@ -74,7 +74,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
     TextView levelView;
 
     Dialog mDialog;//图片选择
-//    BmobRealTimeData mBrtd= new BmobRealTimeData();
+    BmobRealTimeData mBrtd= new BmobRealTimeData();
     Handler mHandler=new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -95,41 +95,42 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
             {R.mipmap.self_setting}
     };
 
-//    private void levelCheck(){
-//        mBrtd.start(context, new ValueEventListener() {
-//            @Override
-//            public void onDataChange(JSONObject data) {
-//                LogUtils.d(data.toString());
-//                Pattern pattern=Pattern.compile("level\":(\\d*)");
-//                Matcher matcher=pattern.matcher(data.toString());
-//                if(matcher.find()){
-//                    int level = Integer.valueOf(matcher.group(1));
-//                    mHandler.obtainMessage(CODE_TABLE_UPDATE,level,level).sendToTarget();
-//                }
-//            }
-//
-//            @Override
-//            public void onConnectCompleted() {
-//                LogUtils.d("connect is ok...");
-//            }
-//        });
-//        if(mBrtd.isConnected()){
-//            // 监听行更新
-//            mBrtd.subRowUpdate("_User", UserUtil.getCurrentUser(context).getObjectId());
-//        }
-//    }
+    private void levelCheck(){
+        if(UserUtil.getCurrentUser(context)==null)return;
+        mBrtd.start(context, new ValueEventListener() {
+            @Override
+            public void onDataChange(JSONObject data) {
+                LogUtils.d(data.toString());
+                Pattern pattern=Pattern.compile("level\":(\\d*)");
+                Matcher matcher=pattern.matcher(data.toString());
+                if(matcher.find()){
+                    int level = Integer.valueOf(matcher.group(1));
+                    mHandler.obtainMessage(CODE_TABLE_UPDATE,level,level).sendToTarget();
+                }
+            }
+
+            @Override
+            public void onConnectCompleted() {
+                LogUtils.d("connect is ok...");
+            }
+        });
+        if(mBrtd.isConnected()){
+            // 监听行更新
+            mBrtd.subRowUpdate("_User", UserUtil.getCurrentUser(context).getObjectId());
+        }
+    }
 
     @Override
     public void onResume() {
         super.onResume();
-//        levelCheck();
+        levelCheck();
     }
 
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//        if(mBrtd!=null&&UserUtil.getCurrentUser(context)!=null)mBrtd.unsubRowUpdate("_User",UserUtil.getCurrentUser(context).getObjectId());
-//    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(mBrtd!=null&&UserUtil.getCurrentUser(context)!=null)mBrtd.unsubRowUpdate("_User",UserUtil.getCurrentUser(context).getObjectId());
+    }
 
     @Override
     public int initLayoutRes() {
@@ -262,6 +263,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
 
     private void setUserLevel(int level) {
         User user=UserUtil.getCurrentUser(context);
+        user.setLevel(level);
         if (level < 100) {
             levelView.setText("级别: " + user.getLevel() + "(小卒)");
         } else if (level < 200) {
