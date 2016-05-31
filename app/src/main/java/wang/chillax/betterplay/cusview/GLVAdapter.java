@@ -2,6 +2,7 @@ package wang.chillax.betterplay.cusview;
 
 import android.view.View;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
 /**
@@ -9,9 +10,9 @@ import java.lang.ref.WeakReference;
  */
 public abstract class GLVAdapter{
 
-    WeakReference<GroupListView> mListView;
+    SoftReference<GroupListView> mListView;
 
-    public GLVAdapter(GroupListView lv){mListView=new WeakReference<>(lv);}
+    public GLVAdapter(GroupListView lv){mListView=new SoftReference<>(lv);}
 
     public abstract int groupCount();
     public abstract int dividerHeight();

@@ -92,6 +92,7 @@ public class OrderUtils {
                 try {
                     params.put("id",mOrderId)
                             .put("user",BmobUser.getCurrentUser(context).getUsername())
+                            .put("token",BmobUser.getCurrentUser(context).getSessionToken())
                             .put("group",detail.getGroup_id())
                             .put("back",detail.getBack())
                             .put("count",count)
