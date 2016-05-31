@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<in.srain.cube.views.ptr.PtrClassicFrameLayout
-    android:id="@+id/store_house_ptr_frame"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#333333"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<com.yalantis.taurus.PullToRefreshView xmlns:android="http://schemas.android.com/apk/res/android"
+                                       xmlns:app="com.yalantis.taurus"
+                                       android:id="@+id/pull_to_refresh"
+                                       app:type="sun"
+                                       android:layout_width="match_parent"
+                                       android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,4 +18,4 @@
         </ListView>
     </LinearLayout>
 
-</in.srain.cube.views.ptr.PtrClassicFrameLayout>
+</com.yalantis.taurus.PullToRefreshView>

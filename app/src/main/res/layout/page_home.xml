@@ -5,7 +5,6 @@
     app:type="sun"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <wang.chillax.betterplay.cusview.HeaderGridView
         android:background="@color/main_content_bg_color"
         android:id="@+id/content_gv"
