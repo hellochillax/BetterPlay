@@ -2,19 +2,14 @@ package wang.chillax.betterplay.utils;
 
 import android.app.Activity;
 
-
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import c.b.BP;
 import c.b.PListener;
-import c.b.QListener;
 import cn.bmob.v3.AsyncCustomEndpoints;
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.listener.CloudCodeListener;
-import cn.bmob.v3.listener.SaveListener;
 import wang.chillax.betterplay.bmob.GroupDetail;
-import wang.chillax.betterplay.bmob.GroupFriend;
 import wang.chillax.betterplay.bmob.Order;
 
 /**
@@ -94,6 +89,7 @@ public class OrderUtils {
                             .put("user",BmobUser.getCurrentUser(context).getUsername())
                             .put("token",BmobUser.getCurrentUser(context).getSessionToken())
                             .put("group",detail.getGroup_id())
+                            .put("title",detail.getTitle())
                             .put("back",detail.getBack())
                             .put("count",count)
                             .put("price",total);
@@ -105,7 +101,7 @@ public class OrderUtils {
                 ace.callEndpoint(context, "createOrder", params, new CloudCodeListener() {
                     @Override
                     public void onSuccess(Object object) {
-                        listenerr.onSuccess(new Order(mOrderId,BmobUser.getCurrentUser(context).getUsername(),detail.getGroup_id(),code,count,total));
+                        listenerr.onSuccess(new Order(mOrderId,BmobUser.getCurrentUser(context).getUsername(),detail.getGroup_id(),code,count,total,detail.getTitle()));
                         LogUtils.d(object.toString());
                     }
                     @Override

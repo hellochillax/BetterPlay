@@ -10,9 +10,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.yalantis.taurus.PullToRefreshView;
 
@@ -22,9 +20,6 @@ import java.util.List;
 import butterknife.Bind;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.listener.FindListener;
-import in.srain.cube.views.ptr.PtrFrameLayout;
-import in.srain.cube.views.ptr.PtrHandler;
-import in.srain.cube.views.ptr.header.StoreHouseHeader;
 import wang.chillax.betterplay.R;
 import wang.chillax.betterplay.activity.GroupDetailAty;
 import wang.chillax.betterplay.activity.WebPage;
@@ -206,6 +201,7 @@ public class HomePage extends BasePage {
             mRollVpUrls.add(image.getImageUrl()!=null?image.getImageUrl():image.getImage().getFileUrl(context));
             mTitles.add(image.getTitle());
         }
+
         mRollVp.notifyDataSetChanged();
     }
 

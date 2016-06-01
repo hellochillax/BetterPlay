@@ -1,8 +1,6 @@
 package wang.chillax.betterplay.activity;
 
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.util.LayoutDirection;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ImageView;
@@ -10,7 +8,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.IOException;
 
 import butterknife.Bind;
 import wang.chillax.betterplay.R;
@@ -38,11 +35,11 @@ public class OrderDetail extends BaseActivity implements ToolBar.ToolBarListener
     GLVAdapter mAdapter;
     ImageView mQRCodeView;
     int mQRWidth;
+    public final static String ORDER = "order";
     @Override
     protected void initDatas() {
         mQRWidth=ScreenUtil.getScreenWidth(this);
-        mTitle=getIntent().getStringExtra("title");
-        mOrder= (Order) getIntent().getParcelableArrayExtra("order")[0];
+        mOrder= (Order) getIntent().getParcelableArrayExtra(ORDER)[0];
         mAdapter=new MyGLVAdapter(mGlv);
         mGlv.setGLVAdapter(mAdapter);
         mGlv.addFooterView(createFooterView());

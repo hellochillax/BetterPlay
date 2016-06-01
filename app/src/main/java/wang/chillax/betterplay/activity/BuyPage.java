@@ -6,10 +6,8 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -312,8 +310,7 @@ public class BuyPage extends BaseActivity implements ToolBar.ToolBarListener {
 
     private void openOrderDetail() {
         Intent intent=new Intent(this,OrderDetail.class);
-        intent.putExtra("title",detail.getTitle());
-        intent.putExtra("order",new Parcelable[]{order});
+        intent.putExtra(OrderDetail.ORDER,new Parcelable[]{order});
         startActivity(intent);
         playOpenAnimation();
     }

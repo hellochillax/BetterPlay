@@ -1,9 +1,12 @@
 package wang.chillax.betterplay.fragment;
 
 
+import android.content.Intent;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.yalantis.taurus.PullToRefreshView;
@@ -16,6 +19,7 @@ import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.listener.FindListener;
 import wang.chillax.betterplay.R;
+import wang.chillax.betterplay.activity.OrderDetail;
 import wang.chillax.betterplay.adapter.BaseAdapter;
 import wang.chillax.betterplay.adapter.ViewHolder;
 import wang.chillax.betterplay.bmob.Order;
@@ -56,12 +60,22 @@ public class PaidPage extends BasePage{
                 mOrderAdapter = new OrderAdapter(mOrders);
                 mListView.setAdapter(mOrderAdapter);
                 getNewData();
-                mOrderAdapter.notifyDataSetChanged();
-
+                mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                openOrderDetail(position);
+                        }
+                });
         }
 
+        private void openOrderDetail(int position){
+                Intent intent=new Intent(super.context,OrderDetail.class);
+                intent.putExtra(OrderDetail.ORDER,new Parcelable[]{mOrders.get(position)});
+                startActivity(intent);
+                playOpenAnimation();
+        }
         public void getNewData() {
-                BmobQuery<Order> query = new BmobQuery<Order>();
+                BmobQuery<Order> query = new BmobQuery<>();
                 query.addWhereEqualTo("username", user.getPhone());
                 query.addWhereEqualTo("status", 1);
                 query.findObjects(super.context, new FindListener<Order>() {
@@ -75,6 +89,7 @@ public class PaidPage extends BasePage{
                                 //showToast("成功");
                                 Log.e("fffff*****",""+mOrders.size());
                                 mPtrView.setRefreshing(false);
+                                mOrderAdapter.notifyDataSetChanged();
                         }
 
                         @Override
@@ -83,7 +98,6 @@ public class PaidPage extends BasePage{
                                 mPtrView.setRefreshing(false);
                         }
                 });
-                mOrderAdapter.notifyDataSetChanged();
         }
         class OrderAdapter extends BaseAdapter{
 
@@ -99,9 +113,10 @@ public class PaidPage extends BasePage{
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                         ViewHolder holder= ViewHolder.get(PaidPage.super.context,convertView,R.layout.order_list_item,position,parent);
-                        holder.setText(R.id.orderName,""+mList.get(position).getOrder_id());
+                        holder.setText(R.id.orderName,mList.get(position).getTitle());
                         holder.setText(R.id.orderCount,"*"+mList.get(position).getCount());
                         holder.setText(R.id.orderPrice,""+mList.get(position).getPrice());
+                        holder.setText(R.id.orderDate,mList.get(position).getCreatedAt());
                         //这个中间对东西赋值
                         return holder.getConvertView();
                         //return null;

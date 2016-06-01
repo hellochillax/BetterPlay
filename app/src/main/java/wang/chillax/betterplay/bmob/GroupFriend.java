@@ -3,7 +3,6 @@ package wang.chillax.betterplay.bmob;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.security.acl.Group;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -46,6 +45,7 @@ public class GroupFriend extends BmobObject implements Parcelable{
         this.price = price;
         this.note = note;
         this.logoUrl = logoUrl;
+        this.priority=priority;
     }
 
     public GroupFriend(Parcel source){
