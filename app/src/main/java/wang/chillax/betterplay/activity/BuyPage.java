@@ -304,7 +304,7 @@ public class BuyPage extends BaseActivity implements ToolBar.ToolBarListener {
     public void onBackPressed() {
         if(pay){
             openOrderDetail();
-            super.onBackPressed();
+            finish();
         }else {
             showExitDialog("提醒","付款还未完成,确定要退出付款界面吗?");
         }

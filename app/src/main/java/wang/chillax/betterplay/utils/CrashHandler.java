@@ -44,7 +44,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
         ex.printStackTrace();
-        recordCrashToServer(ex);
+//        recordCrashToServer(ex);
 
 //        Process.killProcess(Process.myPid());
 //

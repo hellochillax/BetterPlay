@@ -111,7 +111,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
 
             @Override
             public void onConnectCompleted() {
-                LogUtils.d("connect is ok...");
+//                LogUtils.d("connect is ok...");
             }
         });
         if(mBrtd.isConnected()){

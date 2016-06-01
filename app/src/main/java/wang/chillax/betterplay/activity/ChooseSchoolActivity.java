@@ -28,6 +28,7 @@ import wang.chillax.betterplay.config.Urls;
 import wang.chillax.betterplay.cusview.ToolBar;
 import wang.chillax.betterplay.model.Province;
 import wang.chillax.betterplay.model.School;
+import wang.chillax.betterplay.utils.LogUtils;
 
 public class ChooseSchoolActivity extends BaseActivity implements ToolBar.ToolBarListener {
 
@@ -39,10 +40,10 @@ public class ChooseSchoolActivity extends BaseActivity implements ToolBar.ToolBa
     ListView mSchoolListView;
 
 
-    List<String> provinceNameList = new ArrayList<String>();
-    List<String> schoolNameList = new ArrayList<String>();
-    List<Province.ProvinceList> provinceList = new ArrayList<Province.ProvinceList>();
-    List<School.SchoolList> schoolList = new ArrayList<School.SchoolList>();
+    List<String> provinceNameList = new ArrayList<>();
+    List<String> schoolNameList = new ArrayList<>();
+    List<Province.ProvinceList> provinceList = new ArrayList<>();
+    List<School.SchoolList> schoolList = new ArrayList<>();
 
     private RequestQueue mRequestQueue;
     @Override
@@ -79,16 +80,21 @@ public class ChooseSchoolActivity extends BaseActivity implements ToolBar.ToolBa
 
     private void loadProvince(final ArrayAdapter<String> aa){
         mRequestQueue = Volley.newRequestQueue(this);
+        LogUtils.d(Urls.PROVINCE_URL);
         StringRequest mRequest = new StringRequest(Urls.PROVINCE_URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String s) {
                 Province p = new Gson().fromJson(s,Province.class);
                 provinceList = p.getData();
-                for(int i = 0; i<provinceList.size(); i++){
-                    provinceNameList.add(provinceList.get(i).getProvince_name());
+                if(provinceList==null){
+                    showToast(getResources().getString(R.string.error_network));
+                }else {
+                    for (int i = 0; i < provinceList.size(); i++) {
+                        provinceNameList.add(provinceList.get(i).getProvince_name());
 
+                    }
+                    aa.notifyDataSetChanged();
                 }
-                aa.notifyDataSetChanged();
             }
         }, new Response.ErrorListener() {
             @Override

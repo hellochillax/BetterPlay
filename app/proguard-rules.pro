@@ -15,6 +15,11 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# BetterPlay
+-keep public class wang.chillax.betterplay.model.**{*;}
+
+
 -dontwarn java.lang.invoke.*
 
 #support.v7

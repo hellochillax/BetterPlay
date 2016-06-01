@@ -58,7 +58,7 @@ public class Welcome extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
         MultiDex.install(getApplicationContext());
-        installCrashHandler();
+//        installCrashHandler();
         initDirs();
         initImageLoader();
         initUmengFragment();
