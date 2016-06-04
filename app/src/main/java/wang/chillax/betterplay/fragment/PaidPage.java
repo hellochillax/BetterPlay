@@ -66,6 +66,7 @@ public class PaidPage extends BasePage{
                                 openOrderDetail(position);
                         }
                 });
+                Log.e("123","@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
         }
 
         private void openOrderDetail(int position){

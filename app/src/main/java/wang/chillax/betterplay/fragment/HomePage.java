@@ -4,6 +4,7 @@ package wang.chillax.betterplay.fragment;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.google.zxing.client.android.CaptureActivity;
 import com.yalantis.taurus.PullToRefreshView;
 
 import java.util.ArrayList;
@@ -22,6 +24,7 @@ import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.listener.FindListener;
 import wang.chillax.betterplay.R;
 import wang.chillax.betterplay.activity.GroupDetailAty;
+import wang.chillax.betterplay.activity.ScannerActivity;
 import wang.chillax.betterplay.activity.WebPage;
 import wang.chillax.betterplay.adapter.BaseAdapter;
 import wang.chillax.betterplay.bmob.GroupFriend;
@@ -59,6 +62,7 @@ public class HomePage extends BasePage {
     TopImageDao mTopDao;//顶部数据缓存
     HomeListDao mHomeDao;//ListView的数据缓存
 
+    static final int CODE_CAPTURE = 0x12;
     private static final int CODE_SAVE_ON_STOP=0x01;
     Handler mHandler=new Handler(){
         @Override
@@ -133,6 +137,9 @@ public class HomePage extends BasePage {
                 GroupFriend item=contentList.get(position-3);
                 if(item.getPrice()<=0){
                     showToast(getResources().getString(R.string.not_start));
+                    /*******************************************************************************************/
+                    startActivity(new Intent(context, CaptureActivity.class));
+
                 }else{
                     Intent i=new Intent(context, GroupDetailAty.class);
                     ArrayList<GroupFriend> list=new ArrayList<>();
@@ -145,7 +152,6 @@ public class HomePage extends BasePage {
         });
 
     }
-
 
     private void initPtrView() {
         mPtrView.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {

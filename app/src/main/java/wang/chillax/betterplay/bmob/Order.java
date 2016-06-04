@@ -18,6 +18,7 @@ public class Order extends BmobObject implements Parcelable{
     private int count;//数量
     private double price;//总价
     private String title;
+    private int status;
 
     public Order(Parcel source) {
         setObjectId(source.readString());
@@ -28,9 +29,10 @@ public class Order extends BmobObject implements Parcelable{
         count=source.readInt();
         price=source.readDouble();
         title=source.readString();
+        status=source.readInt();
     }
 
-    public Order(String order_id, String username, int group_id, String code, int count, double price,String title) {
+    public Order(String order_id, String username, int group_id, String code, int count, double price,String title,int status) {
         this.order_id = order_id;
         this.username = username;
         this.group_id = group_id;
@@ -38,6 +40,7 @@ public class Order extends BmobObject implements Parcelable{
         this.count = count;
         this.price = price;
         this.title=title;
+        this.status=status;
     }
 
     public static final Creator<Order> CREATOR=new Creator<Order>() {
@@ -67,6 +70,7 @@ public class Order extends BmobObject implements Parcelable{
         dest.writeInt(count);
         dest.writeDouble(price);
         dest.writeString(title);
+        dest.writeInt(status);
     }
 
     public String getTitle() {
@@ -127,5 +131,13 @@ public class Order extends BmobObject implements Parcelable{
 
     public static Creator<Order> getCREATOR() {
         return CREATOR;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

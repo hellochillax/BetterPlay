@@ -31,7 +31,6 @@ public class OrderDetail extends BaseActivity implements ToolBar.ToolBarListener
     @Bind(R.id.glv)
     GroupListView mGlv;
     Order mOrder;//订单
-    String mTitle;//标题
     GLVAdapter mAdapter;
     ImageView mQRCodeView;
     int mQRWidth;
@@ -152,7 +151,7 @@ public class OrderDetail extends BaseActivity implements ToolBar.ToolBarListener
         public View getView(int group, int position) {
             switch (group){
                 case 0:
-                    return new GLVDefaultItemView(mBaseAty).setTitle(mTitle).getContentView();
+                    return new GLVDefaultItemView(mBaseAty).setTitle(mOrder.getTitle()).getContentView();
                 case 1:
                     if(position==0){
                         return new GLVDefaultItemView(mBaseAty).setTitle("张数").setDetail(mOrder.getCount()+"").getContentView();

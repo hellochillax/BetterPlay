@@ -101,7 +101,7 @@ public class OrderUtils {
                 ace.callEndpoint(context, "createOrder", params, new CloudCodeListener() {
                     @Override
                     public void onSuccess(Object object) {
-                        listenerr.onSuccess(new Order(mOrderId,BmobUser.getCurrentUser(context).getUsername(),detail.getGroup_id(),code,count,total,detail.getTitle()));
+                        listenerr.onSuccess(new Order(mOrderId,BmobUser.getCurrentUser(context).getUsername(),detail.getGroup_id(),code,count,total,detail.getTitle(),0));
                         LogUtils.d(object.toString());
                     }
                     @Override

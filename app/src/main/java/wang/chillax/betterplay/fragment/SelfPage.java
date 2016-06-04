@@ -5,10 +5,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -27,12 +25,10 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import butterknife.Bind;
-import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobRealTimeData;
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.datatype.BmobFile;
@@ -126,10 +122,20 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
         levelCheck();
     }
 
+    /**
+     * onStop() 之前无网络连接时一直报 空指针 异常
+     * 原因是unsubRowUpdate调用p.Code,且p在无网络时是空指针(I类型)
+     * 在判断条件里加上对网络的判断，可避免闪退
+     * 但是，还不知道对后序界面的影响，网都没连接，应该没什么问题吧
+     * 目前没测试到任何使用上错误
+     * 还在测试中······
+     */
     @Override
     public void onStop() {
         super.onStop();
-        if(mBrtd!=null&&UserUtil.getCurrentUser(context)!=null)mBrtd.unsubRowUpdate("_User",UserUtil.getCurrentUser(context).getObjectId());
+        if(mBrtd!=null&&UserUtil.getCurrentUser(context)!=null&&mBrtd.isConnected()) {
+            mBrtd.unsubRowUpdate("_User", UserUtil.getCurrentUser(context).getObjectId());
+        }
     }
 
     @Override

@@ -353,7 +353,7 @@ public class PayOrders extends FragmentActivity implements ToolBar.ToolBarListen
 */
     private void openOrderDetailPage(Order order) {
         Intent intent=new Intent(this,OrderDetail.class);
-        intent.putExtra("order",new Parcelable[]{order});
+        intent.putExtra(OrderDetail.ORDER,new Parcelable[]{order});
         startActivity(intent);
     }
 

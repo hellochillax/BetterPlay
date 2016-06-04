@@ -120,4 +120,9 @@ public class QRCodeUtil {
 
         return bitmap;
     }
+
+    /**
+     * 扫描二位码
+     */
+   // public static String
 }

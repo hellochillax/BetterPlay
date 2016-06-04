@@ -8,4 +8,6 @@
     <dimen name="system_main_text_size_small">10sp</dimen>
     <dimen name="bottom_menu_item_image_size">25dp</dimen>
     <dimen name="actionbar_title_size">18sp</dimen>
+    <dimen name="standard_padding">8dip</dimen>
+    <dimen name="half_padding">4dip</dimen>
 </resources>
