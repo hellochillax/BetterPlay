@@ -32,6 +32,8 @@ public class Order extends BmobObject implements Parcelable{
         status=source.readInt();
     }
 
+    public Order(){}
+
     public Order(String order_id, String username, int group_id, String code, int count, double price,String title,int status) {
         this.order_id = order_id;
         this.username = username;

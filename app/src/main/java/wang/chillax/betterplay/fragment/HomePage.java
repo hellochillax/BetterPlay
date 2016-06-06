@@ -137,8 +137,7 @@ public class HomePage extends BasePage {
                 GroupFriend item=contentList.get(position-3);
                 if(item.getPrice()<=0){
                     showToast(getResources().getString(R.string.not_start));
-                    /*******************************************************************************************/
-                    startActivity(new Intent(context, CaptureActivity.class));
+
 
                 }else{
                     Intent i=new Intent(context, GroupDetailAty.class);

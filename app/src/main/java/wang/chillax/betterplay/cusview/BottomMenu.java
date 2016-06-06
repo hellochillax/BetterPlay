@@ -41,7 +41,7 @@ public class BottomMenu extends LinearLayout {
     TextView selfText;
     private OnBottomMenuSelectedListener listener;
     private Context context;
-    private ActionBar actionBar;
+    private ToolBar actionBar;
 
     public BottomMenu(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -105,7 +105,7 @@ public class BottomMenu extends LinearLayout {
         this.listener = listener;
     }
 
-    public void setActionBar(ActionBar actionBar) {
+    public void setActionBar(ToolBar actionBar) {
         this.actionBar = actionBar;
     }
 }

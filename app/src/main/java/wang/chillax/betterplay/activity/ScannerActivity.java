@@ -21,6 +21,7 @@ import wang.chillax.betterplay.R;
 import wang.chillax.betterplay.bmob.Order;
 import wang.chillax.betterplay.bmob.User;
 import wang.chillax.betterplay.cusview.ToolBar;
+import wang.chillax.betterplay.utils.LogUtils;
 
 public class ScannerActivity extends BaseActivity implements ToolBar.ToolBarListener{
 
@@ -59,8 +60,11 @@ public class ScannerActivity extends BaseActivity implements ToolBar.ToolBarList
                     mOrder = list.get(0);
                     if(mOrder.getStatus()==0){
                         mOrder.setStatus(1);
+                        Order item=new Order();
+                        item.setStatus(1);
                         Log.e(mOrder.getObjectId(),"fuckyou!!!!!!!!!!!!!!!!!!!!!");
-                        mOrder.update(ScannerActivity.this, mOrder.getObjectId(), new UpdateListener() {
+                        mFinishDealBtn.setVisibility(View.GONE);
+                        item.update(ScannerActivity.this, mOrder.getObjectId(), new UpdateListener() {
                             @Override
                             public void onSuccess() {
                                 textShowInfo();

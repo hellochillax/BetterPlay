@@ -215,11 +215,12 @@ public class PayOrders extends FragmentActivity implements ToolBar.ToolBarListen
         mToolbar.setToolBarListener(this);
         //mPaidText.setTextColor(getResources().getColor(R.color.umeng_comm_feed_detail_blue));
 
-        mFragments.add(new PaidPage());
+
         //mFragments.add(new PaidPage());
        // mFragments.add(new PaidPage());
 
         mFragments.add(new UnpaidPage());
+        mFragments.add(new PaidPage());
         mFragments.add(new OutOfDatePage());
 
 /*        PaidPage mPaidPage = new PaidPage();

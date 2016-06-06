@@ -1,1 +1,1 @@
-include ':app', ':u_lib', ':scanner', ':pulltorefresh'
+include ':app', ':u_lib', ':pulltorefresh'

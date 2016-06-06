@@ -2,6 +2,7 @@ package wang.chillax.betterplay.activity;
 
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,7 +14,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.google.zxing.client.android.CaptureActivity;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.umeng.comm.core.CommunitySDK;
 import com.umeng.comm.core.impl.CommunityFactory;
@@ -30,13 +34,15 @@ import butterknife.ButterKnife;
 import c.b.BP;
 import cn.bmob.v3.Bmob;
 import wang.chillax.betterplay.R;
+import wang.chillax.betterplay.bmob.User;
 import wang.chillax.betterplay.config.Keys;
-import wang.chillax.betterplay.cusview.ActionBar;
 import wang.chillax.betterplay.cusview.BottomMenu;
+import wang.chillax.betterplay.cusview.ToolBar;
 import wang.chillax.betterplay.fragment.FindPage;
 import wang.chillax.betterplay.fragment.HomePage;
 import wang.chillax.betterplay.fragment.SelfPage;
 import wang.chillax.betterplay.utils.LogUtils;
+import wang.chillax.betterplay.utils.UserUtil;
 
 public class MainActivity extends AppCompatActivity implements BottomMenu.OnBottomMenuSelectedListener {
 
@@ -44,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
     public static final int READ_PHONE_STATE_CODE = 112;
 
     @Bind(R.id.toolbar)
-    ActionBar mActionBar;
+    ToolBar mActionBar;
     Fragment[] fms;
     FragmentManager fm;
     @Bind(R.id.bottom_menu)
@@ -65,6 +71,37 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
         initPagers();
         initStatusBar();
 //        getPermission();
+        mActionBar.setToolBarListener(new ToolBar.ToolBarListener(){
+
+            @Override
+            public void onBackClicked() {
+
+            }
+
+            @Override
+            public void onMoreClicked() {
+                startActivity(new Intent(MainActivity.this, CaptureActivity.class));
+            }
+
+            @Override
+            public void onTitleLeftClicked() {
+
+            }
+
+            @Override
+            public void onTitleRightClicked() {
+
+            }
+
+            @Override
+            public void onInit(ImageView back, TextView titleLeft, TextView titleCenter, TextView titleRight, ImageView more) {
+                User user= UserUtil.getCurrentUser(MainActivity.this);
+                if(user!=null&&user.getLevel()== Keys.Level.ADMIN){
+                    more.setImageResource(R.drawable.qr_scanner_icon);
+                    more.setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     private void initBmobService() {

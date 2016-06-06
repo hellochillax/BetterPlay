@@ -10,7 +10,6 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/pulltorefresh" />
-            <option value="$PROJECT_DIR$/scanner" />
             <option value="$PROJECT_DIR$/u_lib" />
           </set>
         </option>
@@ -19,7 +18,6 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/pulltorefresh" />
-            <option value="$PROJECT_DIR$/scanner" />
             <option value="$PROJECT_DIR$/u_lib" />
           </set>
         </option>

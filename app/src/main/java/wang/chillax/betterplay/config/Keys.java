@@ -23,4 +23,12 @@ public class Keys {
 //    public static String LEGAL="注：收款方为大连利未校园团队,如您对此订单有疑问,请联系:18840833200";
 
     public static String NET_ERROR="网络错误,请重试";
+
+    /**
+     * 用户等级划分
+     * 888: 管理员
+     */
+    public static class Level{
+        public static int ADMIN=888;
+    }
 }

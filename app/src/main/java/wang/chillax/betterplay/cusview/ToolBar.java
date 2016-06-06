@@ -82,4 +82,12 @@ public class ToolBar extends RelativeLayout {
         this.listener = listener;
         listener.onInit(backView, titleLeftView, titleCenterView,titleRightView, moreView);
     }
+
+    /**
+     * set the title of center textview
+     */
+    public void setTitle(String title){
+        if(title==null)return;
+        titleCenterView.setText(title);
+    }
 }
