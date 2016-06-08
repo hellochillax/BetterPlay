@@ -4,6 +4,7 @@ package wang.chillax.betterplay.config;
  * Created by MAC on 15/12/3.
  */
 public class Keys {
+
     public static String BMOB_APP_ID="3b9a74b594aa164265b333ed8d162ce4";
     public static String BMOB_SMS_NAME="默认短信模板";
 
@@ -24,11 +25,4 @@ public class Keys {
 
     public static String NET_ERROR="网络错误,请重试";
 
-    /**
-     * 用户等级划分
-     * 888: 管理员
-     */
-    public static class Level{
-        public static int ADMIN=888;
-    }
 }

@@ -23,6 +23,7 @@ import wang.chillax.betterplay.adapter.BaseAdapter;
 import wang.chillax.betterplay.adapter.ViewHolder;
 import wang.chillax.betterplay.bmob.Order;
 import wang.chillax.betterplay.bmob.User;
+import wang.chillax.betterplay.utils.UserUtil;
 
 
 public class UnpaidPage extends BasePage {
@@ -38,6 +39,11 @@ public class UnpaidPage extends BasePage {
     @Override
     public int initLayoutRes() {
         return R.layout.fragment_unpaid_page;
+    }
+
+    @Override
+    public void updateByLevel(UserUtil.Level level) {
+
     }
 
     @Override

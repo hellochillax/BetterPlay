@@ -26,6 +26,35 @@ import wang.chillax.betterplay.config.Keys;
  */
 public class UserUtil {
     /**
+     * 用户等级划分
+     * PLAIN:普通用户
+     * AGENT:代理用户
+     * ADMIN:管理员用户
+     * @see wang.chillax.betterplay.utils.UserUtil
+     */
+    public enum  Level{
+        PLAIN,AGENT,ADMIN
+    }
+
+    /**
+     * 根据用户的level级别来判断用户当前的等级状态
+     * 0~99:普通用户
+     * 100~199:代理用户
+     * 888:管理员
+     */
+    public static Level getUserLevel(int level){
+        if(level>=0&&level<100){
+            return Level.PLAIN;
+        }
+        if(level>=100&&level<200){
+            return Level.AGENT;
+        }
+        if(level==888){
+            return Level.ADMIN;
+        }
+        throw new IllegalArgumentException("用户级别值有误");
+    }
+    /**
      * 判断当前是否已经有用户登陆
      * @param context
      * @return

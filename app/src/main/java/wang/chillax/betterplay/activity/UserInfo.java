@@ -1,5 +1,6 @@
 package wang.chillax.betterplay.activity;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -110,7 +111,7 @@ public class UserInfo extends BaseActivity implements ToolBar.ToolBarListener{
 
     @Override
     public void onBackPressed() {
-        setResult(RESULT_OK);
+        setResult(Activity.RESULT_OK);
         super.onBackPressed();
         overridePendingTransition(R.anim.slide_clam,R.anim.slide_out_right);
     }

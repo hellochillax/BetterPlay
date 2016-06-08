@@ -90,4 +90,7 @@ public class ToolBar extends RelativeLayout {
         if(title==null)return;
         titleCenterView.setText(title);
     }
+    public ImageView getMoreView(){
+        return moreView;
+    }
 }

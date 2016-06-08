@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/Users/mac/Documents/Coder/Android/BetterPlay/scanner/build/intermediates/res/merged/debug/raw/realm_properties",
+        "source": "/Users/mac/Documents/Coder/Android/BetterPlay/scanner/src/main/res/raw/realm_properties"
+    },
+    {
+        "merged": "/Users/mac/Documents/Coder/Android/BetterPlay/scanner/build/intermediates/res/merged/debug/raw/beep.ogg",
+        "source": "/Users/mac/Documents/Coder/Android/BetterPlay/scanner/src/main/res/raw/beep.ogg"
+    }
+]

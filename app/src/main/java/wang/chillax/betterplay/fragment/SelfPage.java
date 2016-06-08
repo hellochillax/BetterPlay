@@ -7,9 +7,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,17 +72,6 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
     TextView levelView;
 
     Dialog mDialog;//图片选择
-    BmobRealTimeData mBrtd= new BmobRealTimeData();
-    Handler mHandler=new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-           switch (msg.what){
-               case CODE_TABLE_UPDATE:
-                   setUserLevel(msg.arg1);
-                   break;
-           }
-        }
-    };
 
     String[][] items = new String[][]{
             {"我的订单", "心愿单", "消息中心"}, {"优惠券", "推荐优惠"}, {"设置"}
@@ -91,56 +82,14 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
             {R.mipmap.self_setting}
     };
 
-    private void levelCheck(){
-        if(UserUtil.getCurrentUser(context)==null)return;
-        mBrtd.start(context, new ValueEventListener() {
-            @Override
-            public void onDataChange(JSONObject data) {
-                LogUtils.d(data.toString());
-                Pattern pattern=Pattern.compile("level\":(\\d*)");
-                Matcher matcher=pattern.matcher(data.toString());
-                if(matcher.find()){
-                    int level = Integer.valueOf(matcher.group(1));
-                    mHandler.obtainMessage(CODE_TABLE_UPDATE,level,level).sendToTarget();
-                }
-            }
-
-            @Override
-            public void onConnectCompleted() {
-//                LogUtils.d("connect is ok...");
-            }
-        });
-        if(mBrtd.isConnected()){
-            // 监听行更新
-            mBrtd.subRowUpdate("_User", UserUtil.getCurrentUser(context).getObjectId());
-        }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        levelCheck();
-    }
-
-    /**
-     * onStop() 之前无网络连接时一直报 空指针 异常
-     * 原因是unsubRowUpdate调用p.Code,且p在无网络时是空指针(I类型)
-     * 在判断条件里加上对网络的判断，可避免闪退
-     * 但是，还不知道对后序界面的影响，网都没连接，应该没什么问题吧
-     * 目前没测试到任何使用上错误
-     * 还在测试中······
-     */
-    @Override
-    public void onStop() {
-        super.onStop();
-        if(mBrtd!=null&&UserUtil.getCurrentUser(context)!=null&&mBrtd.isConnected()) {
-            mBrtd.unsubRowUpdate("_User", UserUtil.getCurrentUser(context).getObjectId());
-        }
-    }
-
     @Override
     public int initLayoutRes() {
         return R.layout.page_self;
+    }
+
+    @Override
+    public void updateByLevel(UserUtil.Level level) {
+        refreshUserInfoByBmob();
     }
 
     @Override
@@ -270,13 +219,19 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
     private void setUserLevel(int level) {
         User user=UserUtil.getCurrentUser(context);
         user.setLevel(level);
-        if (level < 100) {
-            levelView.setText("级别: " + user.getLevel() + "(小卒)");
-        } else if (level < 200) {
-            levelView.setText("等级: " + user.getLevel() + "(代理)");
-        } else if (level == 888) {
-            levelView.setText("等级: " + user.getLevel() + "(管理员)");
+        UserUtil.Level le= UserUtil.getUserLevel(level);
+        switch (le){
+            case PLAIN:
+                levelView.setText("级别: " + user.getLevel() + "(小卒)");
+                break;
+            case AGENT:
+                levelView.setText("等级: " + user.getLevel() + "(代理)");
+                break;
+            case ADMIN:
+                levelView.setText("等级: " + user.getLevel() + "(管理员)");
+                break;
         }
+
     }
 
     @Override
@@ -284,7 +239,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
         //结果码不等于取消时候
         if (resultCode == Activity.RESULT_OK) {
             switch (requestCode) {
-                case SELF_PAGE_REQ_CODE:
+                case LoginActivity.CODE_START_FOR_RESULT:
                     //登陆或者注册成功
                     refreshUserInfoByBmob();
                     break;
@@ -410,7 +365,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
     private void openLoginActivity() {
         Intent intent = new Intent(context, LoginActivity.class);
 //        startActivity(intent);
-        startActivityForResult(intent, SELF_PAGE_REQ_CODE);
+        startActivityForResult(intent, LoginActivity.CODE_START_FOR_RESULT);
         getActivity().overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_clam);
     }
 
@@ -451,6 +406,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
         }
     }
 
+
     class MyAdapter extends GLVAdapter {
 
         public MyAdapter(GroupListView lv) {
@@ -484,8 +440,7 @@ public class SelfPage extends BasePage implements GroupListView.OnGLVItemClicked
     /**
      * 请求码
      */
-    private static final int SELF_PAGE_REQ_CODE_INFO = 0x01;
-    private static final int SELF_PAGE_REQ_CODE = 0x02;
+    private static final int SELF_PAGE_REQ_CODE_INFO = 0x09;
     private static final int IMAGE_REQUEST_CODE = 0x03;//选择本地照片
     private static final int CAMERA_REQUEST_CODE = 0x04;//拍照
     private static final int RESULT_REQUEST_CODE = 0x05;//剪切图片

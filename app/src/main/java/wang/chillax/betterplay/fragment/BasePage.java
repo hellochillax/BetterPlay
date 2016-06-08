@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import butterknife.ButterKnife;
 import wang.chillax.betterplay.R;
+import wang.chillax.betterplay.utils.UserUtil;
 
 /**
  * Created by MAC on 15/12/1.
@@ -77,4 +78,10 @@ public abstract class BasePage extends Fragment{
     protected void playExitAnimation(){
         ((Activity)context).overridePendingTransition(R.anim.slide_clam,R.anim.slide_out_right);
     }
+
+    /**
+     * 当用户的level改变时,系统会回调该函数
+     * @param level
+     */
+    public abstract void updateByLevel(UserUtil.Level level);
 }

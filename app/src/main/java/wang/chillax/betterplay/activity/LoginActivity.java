@@ -1,5 +1,6 @@
 package wang.chillax.betterplay.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
@@ -27,6 +28,9 @@ import wang.chillax.betterplay.utils.UserUtil;
  * Created by MAC on 15/12/1.
  */
 public class LoginActivity extends BaseActivity implements ToolBar.ToolBarListener {
+
+    public static final int CODE_START_FOR_RESULT=0x11;
+
     @Bind(R.id.toolbar)
     ToolBar mToolbar;
     @Bind(R.id.login_account)
@@ -104,8 +108,11 @@ public class LoginActivity extends BaseActivity implements ToolBar.ToolBarListen
             private void loginSuccess() {
                 showToast(getResources().getString(R.string.success_login));
                 hideLoadingDialog();
-                setResult(RESULT_OK);
-                onBackPressed();
+                setResult(Activity.RESULT_OK);
+//                onBackPressed();
+                overridePendingTransition(R.anim.slide_clam, R.anim.slide_out_bottom);
+                finish();
+
             }
 
         });

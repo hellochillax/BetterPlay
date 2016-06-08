@@ -1,14 +1,27 @@
 package wang.chillax.betterplay.utils;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
+import android.support.v7.app.AlertDialog;
 
 import org.json.JSONObject;
+import org.xml.sax.ContentHandler;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import c.b.BP;
 import c.b.PListener;
 import cn.bmob.v3.AsyncCustomEndpoints;
 import cn.bmob.v3.BmobUser;
 import cn.bmob.v3.listener.CloudCodeListener;
+import wang.chillax.betterplay.R;
 import wang.chillax.betterplay.bmob.GroupDetail;
 import wang.chillax.betterplay.bmob.Order;
 
@@ -43,6 +56,7 @@ public class OrderUtils {
                 if(i==-3){
                     if(listenerr!=null){
                         listenerr.onFail("请先安装支付插件");
+                        installPayPlugin(context);
                     }
                 }else if (i == 10777) {
                     BP.ForceFree();
@@ -115,6 +129,45 @@ public class OrderUtils {
 
     }
 
+
+    public static void installPayPlugin(final Context context){
+        if(copyApkFromAssets(context, "pay_plugin.apk", Environment.getExternalStorageDirectory().getAbsolutePath()+"/pay_plugin.apk")){
+            AlertDialog.Builder m = new AlertDialog.Builder(context)
+                    .setIcon(R.drawable.ic_launcher).setMessage("是否安装？")
+                    .setIcon(R.drawable.ic_launcher)
+                    .setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            intent.setDataAndType(Uri.parse("file://" + Environment.getExternalStorageDirectory().getAbsolutePath()+"/pay_plugin.apk"),
+                                    "application/vnd.android.package-archive");
+                            context.startActivity(intent);
+                        }
+                    });
+            m.show();
+        }
+    }
+    public static boolean copyApkFromAssets(Context context, String fileName, String path) {
+        boolean copyIsFinish = false;
+        try {
+            InputStream is = context.getAssets().open(fileName);
+            File file = new File(path);
+            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(file);
+            byte[] temp = new byte[1024];
+            int i = 0;
+            while ((i = is.read(temp)) > 0) {
+                fos.write(temp, 0, i);
+            }
+            fos.close();
+            is.close();
+            copyIsFinish = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return copyIsFinish;
+    }
 
     public interface PayListenerr{
         void onSuccess(Order order);

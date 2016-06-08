@@ -1,44 +1,48 @@
 package wang.chillax.betterplay.activity;
 
 import android.annotation.TargetApi;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.zxing.client.android.CaptureActivity;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
-import com.umeng.comm.core.CommunitySDK;
-import com.umeng.comm.core.impl.CommunityFactory;
 import com.umeng.comm.ui.fragments.CommunityMainFragment;
-import com.umeng.common.ui.widgets.ScaleImageView;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import org.json.JSONObject;
+
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import c.b.BP;
 import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.BmobRealTimeData;
+import cn.bmob.v3.BmobUser;
+import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.UpdateListener;
+import cn.bmob.v3.listener.ValueEventListener;
 import wang.chillax.betterplay.R;
 import wang.chillax.betterplay.bmob.User;
 import wang.chillax.betterplay.config.Keys;
 import wang.chillax.betterplay.cusview.BottomMenu;
 import wang.chillax.betterplay.cusview.ToolBar;
-import wang.chillax.betterplay.fragment.FindPage;
+import wang.chillax.betterplay.fragment.BasePage;
 import wang.chillax.betterplay.fragment.HomePage;
 import wang.chillax.betterplay.fragment.SelfPage;
 import wang.chillax.betterplay.utils.LogUtils;
@@ -56,6 +60,32 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
     @Bind(R.id.bottom_menu)
     BottomMenu mBottomMenu;
 
+    Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            User user = UserUtil.getCurrentUser(MainActivity.this);
+            if (user.getLevel() != msg.arg1) {
+                BmobUser.logOut(MainActivity.this);
+                Toast.makeText(MainActivity.this, getResources().getString(R.string.error_config_changed), Toast.LENGTH_SHORT).show();
+                startActivityForResult(new Intent(MainActivity.this, LoginActivity.class), LoginActivity.CODE_START_FOR_RESULT);
+            }
+        }
+    };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case LoginActivity.CODE_START_FOR_RESULT:
+                if(resultCode==RESULT_OK){
+                    updateByLevel(UserUtil.getUserLevel(UserUtil.getCurrentUser(MainActivity.this).getLevel()));
+                }
+                break;
+            default:
+                super.onActivityResult(requestCode,resultCode,data);
+                break;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 //        try{
@@ -71,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
         initPagers();
         initStatusBar();
 //        getPermission();
-        mActionBar.setToolBarListener(new ToolBar.ToolBarListener(){
+        mActionBar.setToolBarListener(new ToolBar.ToolBarListener() {
 
             @Override
             public void onBackClicked() {
@@ -95,20 +125,98 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
 
             @Override
             public void onInit(ImageView back, TextView titleLeft, TextView titleCenter, TextView titleRight, ImageView more) {
-                User user= UserUtil.getCurrentUser(MainActivity.this);
-                if(user!=null&&user.getLevel()== Keys.Level.ADMIN){
-                    more.setImageResource(R.drawable.qr_scanner_icon);
-                    more.setVisibility(View.VISIBLE);
+                User user = UserUtil.getCurrentUser(MainActivity.this);
+                if (user != null && UserUtil.Level.ADMIN == UserUtil.getUserLevel(user.getLevel())) {
+                    updateByLevel(UserUtil.Level.ADMIN);
                 }
             }
         });
+        findUserLevelOnCreate();
+        beginFollowUserLevel();
+    }
+
+    BmobRealTimeData rtd;
+
+    private void beginFollowUserLevel() {
+        User user = UserUtil.getCurrentUser(this);
+        if (user == null) return;
+        rtd = new BmobRealTimeData();
+        rtd.start(this, new ValueEventListener() {
+            @Override
+            public void onDataChange(JSONObject data) {
+                LogUtils.d(data.toString());
+                Pattern pattern = Pattern.compile("level\":(\\d*)");
+                Matcher matcher = pattern.matcher(data.toString());
+                if (matcher.find()) {
+                    int level = Integer.valueOf(matcher.group(1));
+                    mHandler.obtainMessage(0, level, level).sendToTarget();
+                }
+            }
+
+            @Override
+            public void onConnectCompleted() {
+                rtd.subRowUpdate("_User", UserUtil.getCurrentUser(MainActivity.this).getObjectId());
+            }
+        });
+//        if(rtd.isConnected()){
+//            rtd.subRowUpdate("_User", user.getObjectId());
+//        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (rtd != null) {
+            rtd.unsubTableUpdate("_User");
+        }
+    }
+
+    public void findUserLevelOnCreate() {
+        User user = UserUtil.getCurrentUser(this);
+        if (user == null) return;
+        BmobQuery<User> query = new BmobQuery<>();
+        query.addWhereEqualTo("username", user.getUsername());
+        query.findObjects(this, new FindListener<User>() {
+            @Override
+            public void onSuccess(List<User> object) {
+//                updateByLevel(UserUtil.getUserLevel(object.get(0).getLevel()));
+                mHandler.obtainMessage(0,object.get(0).getLevel(),0).sendToTarget();
+            }
+
+            @Override
+            public void onError(int code, String msg) {
+                Toast.makeText(MainActivity.this, getResources().getString(R.string.error_network), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+    public void updateByLevel(UserUtil.Level level) {
+        switch (level) {
+            case PLAIN:
+                mActionBar.getMoreView().setVisibility(View.GONE);
+                break;
+            case AGENT:
+                mActionBar.getMoreView().setVisibility(View.GONE);
+                break;
+            case ADMIN:
+                mActionBar.getMoreView().setVisibility(View.VISIBLE);
+                mActionBar.getMoreView().setImageResource(R.drawable.qr_scanner_icon);
+                break;
+        }
+        if (fms[0] != null) {
+            ((BasePage) fms[0]).updateByLevel(level);
+        }
+        if (fms[2] != null) {
+            ((BasePage) fms[2]).updateByLevel(level);
+        }
     }
 
     private void initBmobService() {
         // 初始化 Bmob SDK
         // 使用时请将第二个参数Application ID替换成你在Bmob服务器端创建的Application ID
         Bmob.initialize(getApplicationContext(), Keys.BMOB_APP_ID);
-        BP.init(getApplicationContext(),Keys.BMOB_APP_ID);
+        BP.init(getApplicationContext(), Keys.BMOB_APP_ID);
     }
 
     private void initStatusBar() {
@@ -139,14 +247,15 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
         //activity后台被杀死之后,三个界面会被保存下来,这里进行恢复
         fms = new Fragment[3];
         if (fm.getFragments() != null) {
-            fms[0] =  fm.findFragmentByTag("home");
+            fms[0] = fm.findFragmentByTag("home");
             fms[1] = fm.findFragmentByTag("find");
-            fms[2] =  fm.findFragmentByTag("self");
+            fms[2] = fm.findFragmentByTag("self");
         }
         mBottomMenu.setOnSelectedListener(this);
         mBottomMenu.setActionBar(mActionBar);
         mBottomMenu.setSelection(0);
     }
+
     CommunityMainFragment mFeedsFragment;
 
     private void setCurrPage(int index) {
@@ -164,11 +273,11 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
             case 1:
                 if (fms[1] == null) {
                     mFeedsFragment = new CommunityMainFragment();
-          //设置Feed流页面的返回按钮不可见
+                    //设置Feed流页面的返回按钮不可见
                     mFeedsFragment.setBackButtonVisibility(View.INVISIBLE);
-                    fms[1]=mFeedsFragment;
+                    fms[1] = mFeedsFragment;
                     ft.add(R.id.content, fms[1], "find");
-         //添加并显示Fragment
+                    //添加并显示Fragment
                 } else {
                     ft.show(fms[1]);
                 }
@@ -191,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
                 ft.hide(page);
             }
         }
-        if(mFeedsFragment!=null){
+        if (mFeedsFragment != null) {
             ft.hide(mFeedsFragment);
         }
     }
@@ -201,49 +310,6 @@ public class MainActivity extends AppCompatActivity implements BottomMenu.OnBott
         setCurrPage(index);
     }
 
-//    @TargetApi(23)
-//    private void getPermission() {
-//        //如果是6.0以上系统就运行动态权限检测
-//        if (Build.VERSION.SDK_INT >= 23) {
-//            final int[] requestCode = {checkSelfPermission(Manifest.permission.READ_SMS),
-//                    checkSelfPermission(Manifest.permission.READ_PHONE_STATE)};
-//            final String[] permissionStr = {Manifest.permission.READ_SMS,
-//                    Manifest.permission.READ_PHONE_STATE};
-//            final String[] dialogStr = {"利未校园想要获取您的短信信息来完成自动验证码填写\n " +
-//                    "如果您拒绝了权限获取可能会引起应用程序的不稳定",
-//                    "利未校园想要获取您的手机状态"};
-//            new Object(){
-//               public void checkPermission(){
-//                    /*判断是权限请求是否被用户拒绝
-//            * 如果没有被拒绝在自己弹出dialog来提示用户
-//            * 如果第一次执行则调用系统默认的dialog来获取权限*/
-//                   for (int i = 1; i < dialogStr.length; i++) {
-//                       if (shouldShowRequestPermissionRationale(permissionStr[i])) {
-//                           showMessageOKCancel(dialogStr[i], new DialogInterface.OnClickListener() {
-//                               @Override
-//                               public void onClick(DialogInterface dialog, int which) {
-//                                   int j = 111;
-//                                   requestPermissions(permissionStr, j);
-//                                   j++;
-//                               }
-//                           });
-//                       } else if (requestCode[i] != PackageManager.PERMISSION_GRANTED) {
-//                           ActivityCompat.requestPermissions(MainActivity.this, permissionStr, 111 + i);
-//                       }
-//                   }
-//               }
-//            }.checkPermission();
-//        }
-//    }
-
-//    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
-//        new AlertDialog.Builder(this)
-//                .setMessage(message)
-//                .setPositiveButton("OK", okListener)
-//                .setNegativeButton("Cancel", null)
-//                .create()
-//                .show();
-//    }
 
     @Override
     public void onBackPressed() {

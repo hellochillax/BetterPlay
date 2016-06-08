@@ -37,6 +37,7 @@ import wang.chillax.betterplay.dao.TopImageDao;
 import wang.chillax.betterplay.utils.ImageLoader;
 import wang.chillax.betterplay.utils.LogUtils;
 import wang.chillax.betterplay.utils.ScreenUtil;
+import wang.chillax.betterplay.utils.UserUtil;
 
 
 /**
@@ -165,6 +166,11 @@ public class HomePage extends BasePage {
     @Override
     protected int initLayoutRes() {
         return R.layout.page_home;
+    }
+
+    @Override
+    public void updateByLevel(UserUtil.Level level) {
+
     }
 
 
